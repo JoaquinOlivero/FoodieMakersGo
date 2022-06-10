@@ -19,4 +19,5 @@ func SetupRoutes(app *fiber.App) {
 	// Product
 	product := app.Group("/product")
 	product.Post("/new", middleware.Protected(), handler.NewProduct)
+	product.Post("/update", middleware.Protected(), handler.UpdateProduct)
 }
