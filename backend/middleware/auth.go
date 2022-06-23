@@ -23,7 +23,7 @@ func Protected() fiber.Handler {
 	}
 
 	return jwtware.New(jwtware.Config{
-		TokenLookup:   "cookie:data",
+		TokenLookup:   "cookie:cookieToken",
 		SigningMethod: "RS256",
 		SigningKey:    key,
 		ErrorHandler:  jwtError,

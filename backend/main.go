@@ -4,15 +4,22 @@ import (
 	"log"
 
 	"github.com/JoaquinOlivero/FoodieMakers/routes"
+	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		JSONEncoder: json.Marshal,
+		JSONDecoder: json.Unmarshal,
+	})
 	app.Use(
 		cors.New(cors.Config{
-			AllowMethods: "GET, POST",
+			AllowOrigins:     "https://foodiemakers.xyz",
+			AllowHeaders:     "Origin, Content-Type, Accept",
+			AllowMethods:     "GET, POST",
+			AllowCredentials: true,
 		}),
 	)
 
@@ -23,5 +30,5 @@ func main() {
 		return c.Status(fiber.StatusNotFound).SendString("Sorry can't find that!")
 	})
 
-	log.Fatal(app.Listen(":7777"))
+	log.Fatal(app.Listen(":4000"))
 }

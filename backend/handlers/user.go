@@ -87,15 +87,31 @@ func LoginUser(c *fiber.Ctx) error {
 
 	// Create cookie and send token
 	cookie := new(fiber.Cookie)
-	cookie.Name = "data"
+	cookie.Name = "cookieToken"
 	cookie.Value = rsaToken
-	cookie.Expires = time.Now().Add(time.Hour * 24)
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie.Domain = "foodiemakers.xyz"
+	cookie.Path = "/"
 	cookie.HTTPOnly = true
+	cookie.Secure = true
+	cookie.SameSite = "Lax"
 
 	// Set cookie
 	c.Cookie(cookie)
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+// Check if jwt token is still valid and keep user signed in
+func CheckToken(c *fiber.Ctx) error {
+
+	// Get user id from middleware
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	user_id := claims["user_id"].(string)
+
+	// Send user id back to use in react context api
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"user_id": user_id})
 }
 
 // Register new user
@@ -157,6 +173,23 @@ func CreateStore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't create store", "data": err})
 	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func LogoutUser(c *fiber.Ctx) error {
+
+	// Expire specific cookie by name:
+	c.Cookie(&fiber.Cookie{
+		Name: "cookieToken",
+		// Set expiry date to the past
+		Expires:  time.Now().Add(-(time.Hour * 2)),
+		Domain:   "foodiemakers.xyz",
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "lax",
+	})
 
 	return c.SendStatus(fiber.StatusOK)
 }

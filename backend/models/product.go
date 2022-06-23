@@ -16,3 +16,8 @@ type UpdateProduct struct {
 	Category    string   `json:"category"`
 	Images      []string `json:"images" validate:"max=10,min=0"`
 }
+
+// Delete product model
+type DeleteProduct struct {
+	ProductId string `json:"product_id" validate:"required"`
+}

@@ -45,8 +45,8 @@ func NewProduct(c *fiber.Ctx) error {
 	// Insert product into database and retrieve product id
 	var product_id string
 	sqlQuery = `INSERT INTO products (store_id, title, description, category, images, created_at) VALUES ($1, $2, $3, $4, $5, current_timestamp) RETURNING product_id`
-	err2 := db.QueryRow(sqlQuery, user_id, product.Title, product.Description, product.Category, pq.Array(product.Images)).Scan(&product_id)
-	if err2 != nil {
+	err = db.QueryRow(sqlQuery, user_id, product.Title, product.Description, product.Category, pq.Array(product.Images)).Scan(&product_id)
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't create product", "data": err.Error()})
 	}
 
@@ -84,11 +84,15 @@ func UpdateProduct(c *fiber.Ctx) error {
 	var updateProdInterface map[string]interface{}
 	inrec, _ := json.Marshal(update_product)
 	json.Unmarshal(inrec, &updateProdInterface)
+
 	// iterate through inrecs
 	for field, val := range updateProdInterface {
-		if field != "product_id" && field != "images" {
-			colToUpdate = append(colToUpdate, fmt.Sprintf("%v = '%v'", field, val))
-		} else if field == "images" {
+		if field != "product_id" && field != "images" && val != "" {
+			stringValue := fmt.Sprintf("%v", val)
+			formattedValue := strings.ReplaceAll(stringValue, "'", "''")
+
+			colToUpdate = append(colToUpdate, fmt.Sprintf(`%v = '%v'`, field, formattedValue))
+		} else if field == "images" && val != nil {
 			var ImageURLs []string
 			for _, url := range val.([]interface{}) {
 				ImageURL := fmt.Sprintf(`"%v"`, url)
@@ -100,11 +104,78 @@ func UpdateProduct(c *fiber.Ctx) error {
 	}
 
 	sqlQuery = "UPDATE products SET " + strings.Join(colToUpdate[:], ", ") + " WHERE product_id = " + "'" + update_product.ProductId + "'"
-	fmt.Println(sqlQuery)
 	_, err = db.Exec(sqlQuery)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't update product", "data": err.Error()})
 	}
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func DeleteProduct(c *fiber.Ctx) error {
+
+	// Validate POST request body.
+	delete_product := new(model.DeleteProduct)
+	err := validator.InputValidator(delete_product, c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Validation error", "data": err.Error()})
+	}
+
+	// Get user id from middleware. Which is the same id as store_id
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	store_id := claims["user_id"].(string)
+
+	// Connect to db and Delete product
+	db, err := config.ConnectDB()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't connect to database", "data": err.Error()})
+	}
+
+	sqlQuery := "DELETE FROM products WHERE product_id = '" + delete_product.ProductId + "' AND store_id = '" + store_id + "'"
+	res, err := db.Exec(sqlQuery)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't delete product", "data": err.Error()})
+	}
+	// Check if product was deleted
+	count, err := res.RowsAffected()
+	if count == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Product was not deleted. It's possible a lack of authorization to do so."})
+	}
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't delete product", "data": err.Error()})
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func GetProduct(c *fiber.Ctx) error {
+
+	// Get product from database matching id from params.
+	db, err := config.ConnectDB()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't connect to database", "data": err.Error()})
+	}
+
+	var (
+		product_id  string
+		store_id    string
+		title       string
+		description string
+		category    string
+		images      []string
+		created_at  string
+		user_id     string
+		name        string
+		city        string
+		state       string
+	)
+
+	sqlQuery := `SELECT * FROM products INNER JOIN stores ON products.store_id=stores.user_id WHERE product_id = ` + "'" + c.Params("id") + "'"
+	err = db.QueryRow(sqlQuery).Scan(&product_id, &store_id, &title, &description, &category, pq.Array(&images), &created_at, &user_id, &name, &city, &state)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't retrieve product", "data": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state})
 }
