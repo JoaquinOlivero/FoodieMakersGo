@@ -1,0 +1,39 @@
+.SignIn {
+    font-size: 15px;
+    width: 100%;
+    position: relative;
+
+    span {
+        cursor: pointer;
+    }
+
+    form {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        input {
+            padding: 2px 5px;
+            margin: 0 5px;
+            width: 120px;
+            border: 2px solid #dadbe2;
+            border-radius: 5px;
+
+            &:focus {
+                outline: none;
+                border: 2px solid #df373193;
+            }
+        }
+    }
+
+    .SignIn_formError {
+        position: absolute;
+        width: 100%;
+        bottom: -100%;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        color: red;
+    }
+}

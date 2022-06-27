@@ -40,6 +40,7 @@ func LoginUser(c *fiber.Ctx) error {
 	var email string
 	var hashPassword string
 	var userId string
+	var hasStore bool
 
 	db, err := config.ConnectDB()
 	if err != nil {
@@ -55,12 +56,21 @@ func LoginUser(c *fiber.Ctx) error {
 	if !CheckPasswordHash(input.Password, hashPassword) {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"status": "error", "message": "Invalid password", "data": nil})
 	}
+	// Check if user has a store
+	sqlQuery = `SELECT user_id FROM stores WHERE user_id=$1`
+	errStore := db.QueryRow(sqlQuery, userId).Scan(&userId)
+	if errStore == nil {
+		hasStore = true
+	} else {
+		hasStore = false
+	}
 
 	// JWT claims
 	claims := jwt.MapClaims{
-		"user_id": userId,
-		"email":   email,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id":   userId,
+		"has_store": hasStore,
+		"email":     email,
+		"exp":       time.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	// Create RS256 JWT
@@ -99,7 +109,8 @@ func LoginUser(c *fiber.Ctx) error {
 	// Set cookie
 	c.Cookie(cookie)
 
-	return c.SendStatus(fiber.StatusOK)
+	// Send user id back to use in react context api
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"user_id": userId, "has_store": hasStore})
 }
 
 // Check if jwt token is still valid and keep user signed in
@@ -109,9 +120,10 @@ func CheckToken(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	user_id := claims["user_id"].(string)
+	has_store := claims["has_store"]
 
 	// Send user id back to use in react context api
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"user_id": user_id})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"user_id": user_id, "has_store": has_store})
 }
 
 // Register new user

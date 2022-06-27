@@ -1,0 +1,27 @@
+.Navbar {
+    font-family: 'Roboto';
+    width: 100vw;
+    height: 70px;
+
+    border-bottom: 2px solid #dadbe2;
+
+    .Navbar_content {
+        margin-left: auto;
+        margin-right: auto;
+        height: 100%;
+        width: 88vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .Navbar_logo {
+            // temporary, should be its own component
+            width: 30%;
+            font-size: 18px;
+            font-weight: bold;
+            color: #e64f4a;
+        }
+    }
+
+
+}

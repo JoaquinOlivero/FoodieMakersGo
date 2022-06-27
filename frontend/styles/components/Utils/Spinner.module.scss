@@ -1,0 +1,19 @@
+.Spinner {
+    border: 2px solid #dadbe2;
+    /* Light grey */
+    border-top: 2px solid #df373193;
+    /* Blue */
+    border-radius: 50%;
+
+    @keyframes spinner {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    animation: spinner 1.5s linear infinite;
+}
