@@ -1,9 +1,11 @@
 import { createContext, useContext, ReactNode, useState } from "react";
 
+
 type authContextType = {
     user: boolean | null;
     userId: string | null;
     hasStore: boolean | null;
+    register: (firstName: string, lastName: string, email: string, password: string) => void | Promise<any>,
     login: (email: string, password: string) => void,
     logout: () => void,
     userDetails: (id: string, store: boolean) => void,
@@ -15,6 +17,7 @@ const authContextDefaultValues: authContextType = {
     userId: null,
     hasStore: null,
     login: () => { },
+    register: () => { },
     logout: () => { },
     userDetails: () => { },
     checkToken: () => { },
@@ -34,6 +37,8 @@ export function AuthProvider({ children }: Props) {
     const [user, setUser] = useState<boolean | null>(null);
     const [userId, setUserId] = useState<string | null>(null)
     const [hasStore, setHasStore] = useState<boolean | null>(null)
+
+
 
     const login = async (email: string, password: string) => {
         const loginDetails = { "email": email, "password": password }
@@ -60,6 +65,32 @@ export function AuthProvider({ children }: Props) {
             return error
         }
     };
+
+    const register = async (firstName: string, lastName: string, email: string, password: string) => {
+        const registerDetails = { "first_name": firstName, "last_name": lastName, "email": email, "password": password }
+        const url = "https://api.foodiemakers.xyz/user/register"
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(registerDetails)
+            })
+
+            if (res.status === 200) {
+
+                await checkToken()
+                return res.status
+            } else {
+                const data: Promise<object> = res.json()
+                return data
+            }
+        } catch (error) {
+            return error
+        }
+    }
 
     const logout = async () => {
 
@@ -118,6 +149,7 @@ export function AuthProvider({ children }: Props) {
         user,
         userId,
         login,
+        register,
         logout,
         userDetails,
         checkToken,

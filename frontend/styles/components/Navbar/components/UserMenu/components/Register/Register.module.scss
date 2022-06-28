@@ -1,0 +1,65 @@
+.Register {
+    .Register_option {
+        color: #333;
+        cursor: pointer;
+        font-weight: 500;
+        transition: color 150ms ease;
+        font-size: 14px;
+
+        &:hover {
+            color: #df3731;
+        }
+    }
+
+    .Register_modal_content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #333;
+
+        form {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .Register_form_input {
+                width: 100%;
+                margin-bottom: 30px;
+                display: flex;
+                flex-direction: column;
+
+                label {
+                    margin-left: 5px;
+                    margin-bottom: 5px;
+                    font-size: 14px;
+                    letter-spacing: 0.8px;
+                    font-weight: 700;
+                }
+
+                input {
+                    height: 35px;
+                    padding: 0 5px;
+                    border: 2px solid #dadbe2;
+                    border-radius: 5px;
+
+                    &:focus {
+                        outline: none;
+                        border: 2px solid #df373193;
+                    }
+                }
+
+                .Register_formError {
+                    margin: 0 10px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    color: red;
+                }
+            }
+        }
+
+
+
+    }
+}

@@ -2,15 +2,13 @@ import { useState } from 'react'
 import { useAuth } from '../../../../../../contexts/AuthContext';
 import styles from '../../../../../../styles/components/Navbar/components/UserMenu/components/SignIn/SignIn.module.scss'
 import Button from '../../../../../Utils/Button';
-import Image from 'next/image';
 import Spinner from '../../../../../Utils/Spinner';
 
 
-const SignIn = () => {
+const SignIn = ({ signInForm, setSignInForm }: any) => {
     const { login } = useAuth();
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const [signInForm, setSignInForm] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
 
@@ -27,7 +25,9 @@ const SignIn = () => {
     return (
         <div className={styles.SignIn}>
             {!signInForm ?
-                <span onClick={() => setSignInForm(true)}>Sign In</span>
+                <div onClick={() => setSignInForm(true)} className={styles.SignIn_btn}>
+                    <Button text='Sign In' />
+                </div>
                 :
                 <div>
                     <form onSubmit={e => handleLogin(e)}>

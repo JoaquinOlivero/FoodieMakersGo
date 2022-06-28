@@ -151,12 +151,64 @@ func RegisterUser(c *fiber.Ctx) error {
 	sqlQuery := `
 	INSERT INTO users (first_name, last_name, email, password)
 	VALUES ($1, $2, $3, $4)
+	RETURNING id, email
 	`
-	_, err = db.Exec(sqlQuery, user.FirstName, user.LastName, user.Email, user.Password)
+	// Retrieve user id and email from query
+	var userId string
+	var email string
+
+	// _, err = db.Exec(sqlQuery, user.FirstName, user.LastName, user.Email, user.Password)
+	err = db.QueryRow(sqlQuery, user.FirstName, user.LastName, user.Email, user.Password).Scan(&userId, &email)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create user", "data": err})
 	}
-	return c.SendStatus(fiber.StatusOK)
+
+	// JWT claims
+	claims := jwt.MapClaims{
+		"user_id":   userId,
+		"has_store": false,
+		"email":     email,
+		"exp":       time.Now().Add(time.Hour * 24).Unix(),
+	}
+
+	// Create RS256 JWT
+	// Read rsa private key
+	privateKey, err := ioutil.ReadFile("jwt.rsa")
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't generate token", "data": err})
+	}
+
+	// Parse rsa private key
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't generate token", "data": err})
+	}
+
+	// Create RS256 token
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+
+	// Generate encrypted JWT
+	rsaToken, err := token.SignedString(key)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't generate token", "data": err})
+	}
+
+	// Create cookie and send token
+	cookie := new(fiber.Cookie)
+	cookie.Name = "cookieToken"
+	cookie.Value = rsaToken
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	cookie.Domain = "foodiemakers.xyz"
+	cookie.Path = "/"
+	cookie.HTTPOnly = true
+	cookie.Secure = true
+	cookie.SameSite = "Lax"
+
+	// Set cookie
+	c.Cookie(cookie)
+
+	// Send user id back to use in react context api
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"user_id": userId, "has_store": false})
 }
 
 // Create Store

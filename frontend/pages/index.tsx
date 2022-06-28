@@ -3,6 +3,7 @@ import cookieParser from '../utils/cookieParser';
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar/Navbar'
 import { useAuth } from '../contexts/AuthContext';
+import styles from '../styles/Home.module.scss'
 
 type tokenData = {
   data: {
@@ -26,7 +27,7 @@ const Home = ({ data }: tokenData) => {
 
 
   return (
-    <div>
+    <div className={styles.Home}>
       {!loading &&
         <Navbar />
       }
