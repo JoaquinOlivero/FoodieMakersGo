@@ -157,7 +157,6 @@ func RegisterUser(c *fiber.Ctx) error {
 	var userId string
 	var email string
 
-	// _, err = db.Exec(sqlQuery, user.FirstName, user.LastName, user.Email, user.Password)
 	err = db.QueryRow(sqlQuery, user.FirstName, user.LastName, user.Email, user.Password).Scan(&userId, &email)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "Couldn't create user", "data": err})
