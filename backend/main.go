@@ -23,6 +23,8 @@ func main() {
 		}),
 	)
 
+	app.Static("/images", "/secondDisk/FoodieMakers/images") // the path to the images folder should be different in a docker container so it is better to change the path to a modifiable env variable
+
 	routes.SetupRoutes(app)
 
 	// 404

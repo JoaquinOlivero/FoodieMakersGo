@@ -3,10 +3,11 @@ import styles from '../../../../styles/components/Navbar/components/UserMenu/Use
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register';
 import { useState } from 'react';
+import UserNavigation from './components/UserNavigation/UserNavigation';
 
 const UserMenu = () => {
     const [signInForm, setSignInForm] = useState<boolean>(false)
-    const { logout, user } = useAuth();
+    const { user } = useAuth();
 
     return (
         <div className={styles.UserMenu}>
@@ -16,7 +17,8 @@ const UserMenu = () => {
                     {!signInForm && <Register />}
                 </div>
                 :
-                <div onClick={logout}>Logout</div>
+                // <div onClick={logout}>Logout</div>
+                <UserNavigation />
             }
         </div>
 

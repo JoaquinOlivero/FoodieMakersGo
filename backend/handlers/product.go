@@ -8,6 +8,7 @@ import (
 	"github.com/JoaquinOlivero/FoodieMakers/config"
 	model "github.com/JoaquinOlivero/FoodieMakers/models"
 	"github.com/JoaquinOlivero/FoodieMakers/validator"
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 
 	"github.com/gofiber/fiber/v2"
@@ -178,4 +179,39 @@ func GetProduct(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state})
+}
+
+func UploadImage(c *fiber.Ctx) error {
+	// TODO: Add image compression with ffmpeg
+	// Parse image file
+	file, err := c.FormFile("image")
+	if err != nil {
+		// log.Println("image upload error --> ", err)
+		return c.JSON(fiber.Map{"status": 500, "message": "Server error. Could not get image", "data": nil})
+
+	}
+
+	// Convert file size from Bytes to KB
+	// fileSize := float64(file.Size) / 1000
+
+	// Get image extension from the image file
+	fileExt := strings.Split(file.Filename, ".")[1]
+
+	// Generate uuid for image filename
+	uuid := uuid.New()
+
+	// Create image using uuid and fileExt
+	image := fmt.Sprintf("%s.%s", uuid, fileExt)
+
+	// Save image to static images/product folder
+	err = c.SaveFile(file, fmt.Sprintf("/secondDisk/FoodieMakers/images/products/%s", image)) // the path to the .../images folder should be different in a docker container so it is better to change the path to a modifiable env variable
+	if err != nil {
+		// log.Println("image save error --> ", err)
+		return c.JSON(fiber.Map{"status": 500, "message": "Could not save image", "data": nil})
+	}
+
+	// Return image url
+	imageUrl := fmt.Sprintf("https://api.foodiemakers.xyz/images/products/%s", image)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"image_url": imageUrl})
 }

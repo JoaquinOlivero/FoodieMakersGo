@@ -28,8 +28,8 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     const id = context.params.id
     const res = await fetch('https://api.foodiemakers.xyz/product/' + id)
     const data: ProductData = await res.json()
-
-    if (!data) {
+    
+    if (res.status === 400) {
         return {
             notFound: true,
         }

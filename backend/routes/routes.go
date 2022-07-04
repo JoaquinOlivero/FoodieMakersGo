@@ -24,4 +24,5 @@ func SetupRoutes(app *fiber.App) {
 	product.Post("/new", middleware.Protected(), handler.NewProduct)
 	product.Post("/update", middleware.Protected(), handler.UpdateProduct)
 	product.Post("/delete", middleware.Protected(), handler.DeleteProduct)
+	product.Post("/upload-image", middleware.Protected(), handler.UploadImage)
 }
