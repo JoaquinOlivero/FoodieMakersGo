@@ -1,0 +1,32 @@
+.Rating {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    svg {
+        display: flex;
+        width: 16px;
+        margin-right: 2px;
+        color: gold;
+        fill: gold;
+
+        &:last-of-type {
+            margin-right: 0;
+        }
+    }
+
+    .Rating_overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        background-color: black;
+        opacity: 0.7;
+
+        @supports (mix-blend-mode: color) {
+            opacity: unset;
+            mix-blend-mode: color;
+        }
+    }
+}

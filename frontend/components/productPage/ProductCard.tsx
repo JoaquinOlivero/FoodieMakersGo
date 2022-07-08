@@ -3,11 +3,25 @@ import Link from "next/link";
 import { useRouter } from 'next/router'
 import styles from '../../styles/components/productPage/ProductCard.module.scss'
 import { useAuth } from '../../contexts/AuthContext';
+import Button from '../Utils/Button';
+import Wishlist from '../Utils/Wishlist';
+import Rating from '../Utils/Rating';
 
+type ProducData = {
+    data: {
+        title: string
+        images: []
+        category: string
+        store_name: string
+        store_city: string
+        store_state: string
+        rating: number
+        reviews_count: number
+    },
+}
 
-
-const ProductCard = ({ data }: any) => {
-    const { user, checkToken } = useAuth();
+const ProductCard = ({ data }: ProducData) => {
+    const { user } = useAuth();
     const router = useRouter()
     const sliderRef = useRef<HTMLDivElement>(null)
     const [selectedThumbnail, setSelectedThumbnail] = useState<number>(0)
@@ -18,13 +32,9 @@ const ProductCard = ({ data }: any) => {
             const indexThumbnail: string = router.asPath.charAt(router.asPath.length - 1)
             setSelectedThumbnail(parseInt(indexThumbnail, 10))
         }
-        // checkToken()
 
     }, [])
 
-    // useEffect(() => {
-    //     console.log(user);
-    // }, [user])
 
 
     return (
@@ -41,34 +51,46 @@ const ProductCard = ({ data }: any) => {
                     </div>
 
                     {/* Image slider */}
-                    <div className={styles.ProductCard_content_images_slides} ref={sliderRef}>
-                        {data.images.map((image: string, index: number) => {
-                            return <img key={`product-image-${index}`} src={image} id={`product-image-${index}`}></img>
-                        })}
+                    <div className={styles.ProductCard_container_slide} ref={sliderRef}>
+                        <div className={styles.ProductCard_slide_content}>
+                            {data.images.map((image: string, index: number) => {
+                                return <img key={`product-image-${index}`} src={image} id={`product-image-${index}`}></img>
+                            })}
+                        </div>
+
                     </div>
                 </div>
 
                 {/* Details div */}
                 <div className={styles.ProductCard_content_details}>
-                    <div>
+                    <div className={styles.ProductCard_details_header}>
                         <h1>{data.title}</h1>
-                        <p>rating</p>
+                        <div className={styles.ProductCard_header_reviews}>
+                            <div className={styles.ProductCard_header_reviews_rating}>
+                                <Rating value={data.rating} />
+                                <span>{data.rating}</span>
+                            </div>
+                            <div className={styles.ProductCard_header_reviews_count}>
+                                ({data.reviews_count === 1 ? `${data.reviews_count} review` : `${data.reviews_count} reviews`})
+                            </div>
+                        </div>
                         <div className={styles.break}></div>
                     </div>
 
-                    <div>
-                        <p>Manufacturer: {data.store_name}</p>
-                        <p>City: {data.store_city}, {data.store_state}</p>
-                        <p>Category: {data.category}</p>
+                    <div className={styles.ProductCard_details_store}>
+                        <p><span>Manufacturer - </span>{data.store_name}</p>
+                        <p><span>City - </span>{data.store_city}, {data.store_state}</p>
+                        <p><span>Category - </span>{data.category}</p>
                         <div className={styles.break}></div>
                     </div>
 
-                    <div>
-                        <span>Add to wishlist</span>
+                    <div className={styles.ProductCard_details_wishlist}>
+                        <Wishlist />
+                        <span>Add to Wishlist</span>
                     </div>
 
                     <div className={styles.ProductCard_details_contact}>
-                        <span className={styles.btn}>Contact Manufacturer</span>
+                        <Button text='Contact Manufacturer' />
                     </div>
                 </div>
             </div>

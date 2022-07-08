@@ -83,9 +83,9 @@ const UserNavigation = () => {
 
         // Save product to database.
         const url = 'https://api.foodiemakers.xyz/product/new'
-        const productDetails: productBody = {"product_title": pName, "product_description": pDescription, "product_category": pCategory, "product_images": productImages}
+        const productDetails: productBody = { "product_title": pName, "product_description": pDescription, "product_category": pCategory, "product_images": productImages }
         console.log(productDetails);
-        const res = await fetch(url,{
+        const res = await fetch(url, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -125,18 +125,22 @@ const UserNavigation = () => {
                             </div>
                             <div className={styles.UserNavigation_form_input}>
                                 <label>Description</label>
-                                <textarea required value={pDescription} onChange={e => setPDescription(e.target.value)}/>
+                                <textarea required value={pDescription} onChange={e => setPDescription(e.target.value)} />
                             </div>
                             <div className={styles.UserNavigation_form_input}>
                                 <label>Category</label>
                                 <select onChange={e => setPCategory(e.target.value)} defaultValue='dairy'>
-                                    <option value="dairy">Dairy</option>
-                                    <option value="dairy">Bakery</option>
+                                    <option value="dairies">Dairies</option>
+                                    <option value="fruits-vegetables">Fruits & Vegetables</option>
+                                    <option value="breads-sweets">Breads Sweets</option>
+                                    <option value="frozen-seafoods">Frozen Seafoods</option>
+                                    <option value="raw-meats">Raw Meats</option>
+                                    <option value="alcohol">Wines & Alcohol Drinks</option>
                                 </select>
                             </div>
                             <div className={styles.UserNavigation_form_input}>
-                                <label htmlFor="file-upload" style={{cursor: 'pointer'}} ref={imageLabel}>Images</label>
-                                <input type="file" id="file-upload" multiple={true} accept="image/*" onChange={e => handleImage(e)} required/>
+                                <label htmlFor="file-upload" style={{ cursor: 'pointer' }} ref={imageLabel}>Images</label>
+                                <input type="file" id="file-upload" multiple={true} accept="image/*" onChange={e => handleImage(e)} required />
                                 <span className={styles.UserNavigation_form_image_select} onClick={handleSelectImageClick}>Select images</span>
                             </div>
                             <div className={styles.UserNavigation_form_images_selected}>
@@ -147,7 +151,7 @@ const UserNavigation = () => {
                                 }
                             </div>
 
-                            {loading ? <Spinner size={25}/> :<Button text='Publish Product' />}
+                            {loading ? <Spinner size={25} /> : <Button text='Publish Product' />}
                         </form>
                     </div>
                 </Modal>

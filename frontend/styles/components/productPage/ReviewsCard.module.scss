@@ -1,0 +1,210 @@
+.ReviewsCard {
+    width: 100%;
+    background-color: white;
+    border: 1px solid white;
+    border-radius: 50px;
+    -webkit-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 50px;
+
+    h2 {
+        text-align: center;
+    }
+
+    .ReviewsCard_content {
+        width: 80%;
+        display: flex;
+        flex-direction: column;
+
+        .ReviewsCard_cards_container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin: 20px 0;
+
+            .ReviewsCard_review {
+                padding-bottom: 25px;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+
+                .ReviewsCard_review_header {
+                    display: flex;
+                    justify-content: space-between;
+
+                    .ReviewsCard_review_header_left {
+
+
+                        h4 {
+                            word-wrap: break-word;
+                            margin: 0;
+                            margin-bottom: 5px;
+                        }
+
+                        .ReviewsCard_review_header_left_rating {
+                            margin-top: 10px;
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+
+                            span {
+                                font-size: 12px;
+                                opacity: 0.5;
+                            }
+                        }
+
+                    }
+
+                    .ReviewsCard_review_header_right {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+
+                        div {
+                            svg {
+                                cursor: pointer;
+                                fill: #fd2922;
+                                width: 14px;
+                                transition: transform 150ms ease;
+
+                            }
+
+                            &:hover {
+                                transform: scale(1.1);
+                            }
+                        }
+
+                        span {
+                            font-size: 12px;
+                            font-weight: 500;
+                            opacity: 0.5;
+                        }
+                    }
+                }
+
+                .ReviewsCard_review_content {
+                    margin: 25px 0;
+                }
+            }
+        }
+
+        .ReviewsCard_navigation {
+            position: relative;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+
+            span {
+                border: 1px solid #333;
+                border-radius: 5px;
+                padding: 4px 8px;
+                font-size: 13px;
+                font-weight: 500;
+                opacity: 0.5;
+                cursor: pointer;
+                transition: border 100ms ease-in-out, color 100ms ease-in-out, background-color 100ms ease-in-out, opacity 100ms ease-in-out;
+
+                &:hover {
+                    border: 1px solid #fd2922;
+                    color: white;
+                    background-color: #fd2922;
+                    opacity: 0.8;
+                }
+            }
+
+            .ReviewsCard_navigation_pages {
+                position: absolute;
+
+                font-size: 14px;
+                opacity: 0.5;
+                transform: scale(0.9);
+                display: flex;
+                gap: 10px;
+                bottom: -100%;
+                left: 50%;
+                transform: translate(-50%, 0%);
+
+                .ReviewsCard_navigation_pages_selected {
+                    color: #fd2922;
+                    font-weight: 500;
+                    opacity: 1;
+                    transform: scale(1.1);
+                }
+            }
+        }
+
+        .ReviewsCard_loading {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            width: 100%;
+            height: auto;
+
+            .ReviewsCard_loading_review {
+                position: relative;
+                width: 100%;
+                height: 120px;
+
+                span {
+                    letter-spacing: 1px;
+                    display: flex;
+                    align-items: center;
+                    font-weight: 500;
+                    gap: 10px;
+                    opacity: 1;
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    opacity: 0.9;
+                }
+
+                .ReviewsCard_loading_review_bg {
+                    width: 100%;
+                    height: 100%;
+                    background-color: #333;
+                    -webkit-animation: fadeinout 2s infinite;
+                    animation: fadeinout 2s infinite;
+                }
+
+                @-webkit-keyframes fadeinout {
+                    0% {
+                        opacity: 0.15;
+                    }
+
+                    50% {
+                        opacity: 0.05;
+                    }
+
+                    100% {
+                        opacity: 0.15;
+                    }
+                }
+
+                @keyframes fadeinout {
+                    0% {
+                        opacity: 0.15;
+                    }
+
+                    50% {
+                        opacity: 0.05;
+                    }
+
+                    100% {
+                        opacity: 0.15;
+                    }
+                }
+            }
+
+
+        }
+    }
+}

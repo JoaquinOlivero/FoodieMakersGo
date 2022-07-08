@@ -3,7 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/JoaquinOlivero/FoodieMakers/config"
 	model "github.com/JoaquinOlivero/FoodieMakers/models"
@@ -138,6 +140,7 @@ func DeleteProduct(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't delete product", "data": err.Error()})
 	}
+
 	// Check if product was deleted
 	count, err := res.RowsAffected()
 	if count == 0 {
@@ -159,26 +162,125 @@ func GetProduct(c *fiber.Ctx) error {
 	}
 
 	var (
-		product_id  string
-		store_id    string
-		title       string
-		description string
-		category    string
-		images      []string
-		created_at  string
-		user_id     string
-		name        string
-		city        string
-		state       string
+		product_id    string
+		store_id      string
+		title         string
+		description   string
+		category      string
+		images        []string
+		created_at    string
+		user_id       string
+		name          string
+		city          string
+		state         string
+		rating        float32
+		reviews_count int32
 	)
 
-	sqlQuery := `SELECT * FROM products INNER JOIN stores ON products.store_id=stores.user_id WHERE product_id = ` + "'" + c.Params("id") + "'"
-	err = db.QueryRow(sqlQuery).Scan(&product_id, &store_id, &title, &description, &category, pq.Array(&images), &created_at, &user_id, &name, &city, &state)
+	sqlQuery := `
+	SELECT 
+		products.product_id, 
+		products.store_id, 
+		products.title, 
+		products.description, 
+		products.category, 
+		products.images, 
+		products.created_at, 
+		stores.user_id, 
+		stores.name, 
+		stores.city, 
+		stores.state, 
+		ROUND(AVG(reviews.rating),2),
+		COUNT(reviews.rating)
+	FROM 
+		products 
+		INNER JOIN stores ON products.store_id = stores.user_id 
+		LEFT JOIN reviews ON products.product_id = reviews.product_id 
+	WHERE 
+		products.product_id = $1
+	GROUP BY 
+		products.product_id, 
+		stores.user_id`
+
+	err = db.QueryRow(sqlQuery, c.Params("id")).Scan(&product_id, &store_id, &title, &description, &category, pq.Array(&images), &created_at, &user_id, &name, &city, &state, &rating, &reviews_count)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't retrieve product", "data": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state})
+	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state, "rating": rating, "reviews_count": reviews_count})
+}
+
+func ProductReviews(c *fiber.Ctx) error {
+	offset, err := strconv.Atoi(c.Query("offset"))
+	if err != nil {
+		offset = int(0)
+	}
+
+	user_id := c.Query("user_id")
+
+	// Get reviews from database matching product id from params.
+	db, err := config.ConnectDB()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't connect to database", "data": err.Error()})
+	}
+
+	type M map[string]interface{}
+
+	var (
+		review_id       string
+		title           string
+		content         string
+		rating          float32
+		product_id      string
+		author_id       string
+		created_at      time.Time
+		reviewsMapSlice []M
+		reviews_count   int32
+		userHasReview   bool // default false
+	)
+
+	// Get the requested product total amount of reviews.
+	err = db.QueryRow("SELECT COUNT(product_id) FROM reviews WHERE product_id=$1", c.Params("id")).Scan(&reviews_count)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't get reviews", "data": err.Error()})
+	}
+
+	// Check if current user already has a review in the requested product.
+	err = db.QueryRow("SELECT review_id FROM reviews WHERE author_id=$1", user_id).Scan(&review_id)
+	if err == nil { // If there are not errors the user already reviewed the product
+		userHasReview = true
+	}
+
+	// Select data of all reviews belonging to the requested product.
+	sqlQuery := "SELECT review_id, title, content, rating, product_id, author_id, created_at FROM reviews WHERE product_id=$1 LIMIT $2 OFFSET $3"
+	rows, err := db.Query(sqlQuery, c.Params("id"), 2, offset)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't get reviews", "data": err.Error()})
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&review_id, &title, &content, &rating, &product_id, &author_id, &created_at)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't get reviews", "data": err.Error()})
+		}
+
+		elapsedTime := config.GetElapsedTime(created_at)
+
+		review := M{"review_id": review_id, "title": title, "content": content, "rating": rating, "author_id": author_id, "elapsed_time": elapsedTime}
+
+		reviewsMapSlice = append(reviewsMapSlice, review)
+	}
+
+	// get any error encountered during iteration
+	err = rows.Err()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't get reviews", "data": err.Error()})
+	}
+
+	// Close connection to DB. Just in case
+	rows.Close()
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"reviews": reviewsMapSlice, "reviews_count": reviews_count, "user_has_review": userHasReview})
 }
 
 func UploadImage(c *fiber.Ctx) error {

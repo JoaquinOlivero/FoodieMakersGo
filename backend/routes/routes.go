@@ -21,8 +21,14 @@ func SetupRoutes(app *fiber.App) {
 	// Product
 	product := app.Group("/product")
 	product.Get("/:id", handler.GetProduct)
+	product.Get("/:id/reviews", handler.ProductReviews)
 	product.Post("/new", middleware.Protected(), handler.NewProduct)
 	product.Post("/update", middleware.Protected(), handler.UpdateProduct)
 	product.Post("/delete", middleware.Protected(), handler.DeleteProduct)
 	product.Post("/upload-image", middleware.Protected(), handler.UploadImage)
+
+	// Review
+	review := app.Group("/review")
+	review.Post("/new", middleware.Protected(), handler.NewReview)
+	review.Post("/delete", middleware.Protected(), handler.DeleteReview)
 }

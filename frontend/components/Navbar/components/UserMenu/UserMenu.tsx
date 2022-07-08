@@ -17,7 +17,6 @@ const UserMenu = () => {
                     {!signInForm && <Register />}
                 </div>
                 :
-                // <div onClick={logout}>Logout</div>
                 <UserNavigation />
             }
         </div>

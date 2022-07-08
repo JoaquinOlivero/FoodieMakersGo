@@ -1,0 +1,99 @@
+.NewReviewCard {
+    width: 100%;
+    background-color: white;
+    border: 1px solid white;
+    border-radius: 50px;
+    -webkit-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 50px;
+
+    h2 {
+        text-align: center;
+    }
+
+    .NewReviewCard_form {
+        width: 80%;
+        margin-bottom: 30px;
+        gap: 20px;
+        display: flex;
+        flex-direction: column;
+
+        .NewReviewCard_form_input{
+            display: flex;
+            flex-direction: column;
+            label {
+                margin-left: 5px;
+                margin-bottom: 5px;
+                font-size: 14px;
+                letter-spacing: 0.8px;
+                font-weight: 700;
+            }
+    
+            input {
+                height: 35px;
+                padding: 0 5px;
+                border: 2px solid #dadbe2;
+                border-radius: 5px;
+    
+                &:focus {
+                    outline: none;
+                    border: 2px solid #df373193;
+                }
+            }
+
+            
+            textarea {
+                resize: none;
+                font-family: 'Roboto';
+                height: 150px;
+                width: 100%;
+                padding: 5px;
+                border: 2px solid #dadbe2;
+                border-radius: 5px;
+
+                &:focus {
+                    outline: none;
+                    border: 2px solid #df373193;
+                }
+            }
+
+        }
+        .NewReviewCard_form_rating{
+            display: flex;
+            text-align: center;
+            gap: 10px;
+            label {
+                margin-left: 5px;
+                font-size: 14px;
+                letter-spacing: 0.8px;
+                font-weight: 700;
+            }
+            div{
+                cursor: pointer;
+            }
+            span {
+                // font-size: 12px;
+                opacity: 0.5;
+            }
+        }
+        .NoReviewCard_form_button{
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        // .Register_formError {
+        //     margin: 0 10px;
+        //     font-size: 12px;
+        //     font-weight: 500;
+        //     color: red;
+        // }
+    }
+}
