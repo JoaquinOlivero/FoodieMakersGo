@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import styles from "../../styles/components/Utils/Modal.module.scss"
 
 type ModalProps = {
@@ -8,6 +8,14 @@ type ModalProps = {
 }
 
 const Modal = ({ onClickOutside, onExit, children }: ModalProps) => {
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+    
+      return () => {
+        document.body.style.overflow = 'unset';
+      }
+    }, [])
+    
     return (
         <div className={styles.Modal}>
 
