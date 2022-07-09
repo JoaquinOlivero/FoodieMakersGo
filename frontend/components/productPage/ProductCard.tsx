@@ -6,25 +6,34 @@ import { useAuth } from '../../contexts/AuthContext';
 import Button from '../Utils/Button';
 import Wishlist from '../Utils/Wishlist';
 import Rating from '../Utils/Rating';
+import Modal from '../Utils/Modal';
+import EditProduct from './components/EditProduct';
 
 type ProducData = {
     data: {
         title: string
-        images: []
+        images: [string]
         category: string
+        store_id: string
         store_name: string
         store_city: string
         store_state: string
         rating: number
         reviews_count: number
+        description: string
     },
 }
 
 const ProductCard = ({ data }: ProducData) => {
-    const { user } = useAuth();
+    const { userId } = useAuth();
     const router = useRouter()
     const sliderRef = useRef<HTMLDivElement>(null)
     const [selectedThumbnail, setSelectedThumbnail] = useState<number>(0)
+    const [modal, setModal] = useState<boolean>(false)
+
+    const closeModal = () => {
+        setModal(false)
+    }
 
     useEffect(() => {
         const productImageIndexUrl: string = router.asPath.split("#")[1]
@@ -39,8 +48,12 @@ const ProductCard = ({ data }: ProducData) => {
 
     return (
         <div className={styles.ProductCard}>
+            {modal &&
+                <Modal onExit={closeModal} onClickOutside={closeModal}>
+                    <EditProduct title={data.title} images={data.images} category={data.category} description={data.description} />
+                </Modal>
+            }
             <div className={styles.ProductCard_content}>
-
                 {/* Images div */}
                 <div className={styles.ProductCard_content_images}>
                     {/* Thumbnails */}
@@ -63,6 +76,10 @@ const ProductCard = ({ data }: ProducData) => {
 
                 {/* Details div */}
                 <div className={styles.ProductCard_content_details}>
+                    {userId && userId === data.store_id && <div className={styles.ProductCard_content_details_owner_buttons}>
+                        <span onClick={() => setModal(true)}>Edit Product</span>
+                        <span>Delete Product</span>
+                    </div>}
                     <div className={styles.ProductCard_details_header}>
                         <h1>{data.title}</h1>
                         <div className={styles.ProductCard_header_reviews}>

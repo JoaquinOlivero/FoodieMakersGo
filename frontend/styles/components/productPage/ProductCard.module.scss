@@ -84,12 +84,40 @@
         }
 
         .ProductCard_content_details {
+            position: relative;
             width: 35%;
             height: 90%;
             display: flex;
             flex-direction: column;
             border-left: 2px solid rgba(0, 0, 0, 0.267);
             align-items: center;
+
+            .ProductCard_content_details_owner_buttons{
+                position: absolute;
+                width: 100%;
+                display: flex;
+                justify-content: space-evenly;
+                bottom: 0;
+                span{
+                    cursor: pointer;
+                    letter-spacing: 0.8px;
+                    font-size: 12px;
+                    opacity: 0.5;
+                    font-weight: 500;
+                    transition: opacity 150ms;
+                    border: 1px solid black;
+                    border-radius: 5px;
+                    padding: 2px 4px;
+                    transition: border 100ms ease-in-out, color 100ms ease-in-out, background-color 100ms ease-in-out, opacity 100ms ease-in-out;
+
+                    &:hover {
+                        border: 1px solid #fd2922;
+                        color: white;
+                        background-color: #fd2922;
+                        opacity: 0.8;
+                    }
+                }
+            }
 
             .break {
                 width: 80%;

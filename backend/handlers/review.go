@@ -58,12 +58,6 @@ func DeleteReview(c *fiber.Ctx) error {
 
 	reviewId := c.Query("review_id")
 	productId := c.Query("product_id")
-	// Validate POST request body.
-	// review := new(model.DeleteReview)
-	// err := validator.InputValidator(review, c)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Validation error", "data": err.Error()})
-	// }
 
 	// Get user id from middleware. Which is the same id as store_id
 	token := c.Locals("user").(*jwt.Token)

@@ -28,6 +28,7 @@
         padding: 25px;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+        animation: opacity 250ms linear;
 
         .Modal_close {
             position: absolute;
@@ -63,7 +64,5 @@
             opacity: 1;
         }
     }
-
-    animation: opacity 200ms linear;
 
 }

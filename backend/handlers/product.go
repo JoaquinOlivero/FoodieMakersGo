@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -79,7 +80,28 @@ func UpdateProduct(c *fiber.Ctx) error {
 	sqlQuery := `SELECT product_id FROM products WHERE product_id=$1 AND store_id=$2`
 	row := db.QueryRow(sqlQuery, update_product.ProductId, store_id)
 	if err := row.Scan(&update_product.ProductId); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't update product", "data": err.Error()})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Product does not exist or it is not owned by current user", "data": err.Error()})
+	}
+
+	// Delete old images in case there are new ones in the request.
+	if len(update_product.Images) > 0 {
+		type OldImages struct {
+			Images []string `json:"old_images" validate:"max=10,min=0"`
+		}
+		old_images := new(OldImages)
+		err := validator.InputValidator(old_images, c)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Validation error", "data": err.Error()})
+		}
+
+		// Delete image files from the directory that is being used to serve static image files.
+		for _, element := range old_images.Images {
+			filePath := fmt.Sprintf("/secondDisk/FoodieMakers/images/products/%s", element)
+			err = os.Remove(filePath)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't remove old image", "data": err.Error()})
+			}
+		}
 	}
 
 	// Update product

@@ -1,0 +1,105 @@
+.EditProduct_publish_modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #333;
+
+    form {
+        width: 80%;
+        margin-top: 50px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .EditProduct_form_input {
+            width: 100%;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+
+            label {
+                margin-left: 5px;
+                margin-bottom: 5px;
+                font-size: 14px;
+                letter-spacing: 0.8px;
+                font-weight: 700;
+            }
+
+            input {
+                height: 35px;
+                padding: 0 5px;
+                border: 2px solid #dadbe2;
+                border-radius: 5px;
+
+                &:focus {
+                    outline: none;
+                    border: 2px solid #df373193;
+                }
+            }
+
+            select {
+                height: 35px;
+                padding: 0 5px;
+                border: 2px solid #dadbe2;
+                border-radius: 5px;
+
+                &:focus {
+                    outline: none;
+                    border: 2px solid #df373193;
+                }
+            }
+
+            textarea {
+                resize: none;
+                font-family: 'Roboto';
+                height: 150px;
+                width: 100%;
+                padding: 5px;
+                border: 2px solid #dadbe2;
+                border-radius: 5px;
+
+                &:focus {
+                    outline: none;
+                    border: 2px solid #df373193;
+                }
+            }
+
+            input[type="file"]{
+                display: none;
+            }
+
+            .EditProduct_form_image_select{
+                text-align: center;
+                letter-spacing: 0.5px;
+                width: 40%;
+                font-size: 12px;
+                font-weight: 500;
+                display: inline-block;
+                padding: 5px;
+                cursor: pointer;
+                border: 2px solid #dadbe2;
+                border-radius: 5px;
+                transition: transform 250ms ease;
+                transform: scale(0.98);
+                &:hover {
+                    transform: scale(1);
+                }
+            }
+        }
+
+        .EditProduct_form_images_selected{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+            margin-bottom: 60px;
+
+            img{
+                width: auto;
+                height: 70px;
+            }
+        }
+    }
+}

@@ -13,7 +13,7 @@ import cookieParser from "../../utils/cookieParser";
 type Data = {
     data: {
         title: string
-        images: []
+        images: [string]
         category: string
         store_id: string
         store_name: string
@@ -53,8 +53,8 @@ const Product = ({ data, tokenData }: Data) => {
             <div className={styles.Product}>
                 <ProductCard data={data} />
                 <DescriptionCard description={data.description} />
-                {id && !loading && <ReviewsCard id={id} user_id={userId} setUserHasReview={setUserHasReview} router={router}/>}
-                {user && userId !== data.store_id && !userHasReview && !loading && <NewReviewCard product_id={id} store_id={data.store_id}/>}
+                {id && !loading && <ReviewsCard id={id} user_id={userId} setUserHasReview={setUserHasReview} router={router} />}
+                {user && userId !== data.store_id && !userHasReview && !loading && <NewReviewCard product_id={id} store_id={data.store_id} />}
             </div>
 
         </>

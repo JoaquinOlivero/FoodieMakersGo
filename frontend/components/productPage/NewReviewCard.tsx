@@ -43,8 +43,6 @@ const NewReviewCard = (props: Props) => {
         if (res.status === 200) {
             // refresh
             console.log(data.review_id);
-        } else {
-            console.log('bad');
         }
         setIsLoading(false)
     }
