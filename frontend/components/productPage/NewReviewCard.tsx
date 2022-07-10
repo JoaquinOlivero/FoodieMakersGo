@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import { useRef, useState } from 'react'
 import styles from '../../styles/components/productPage/NewReviewCard.module.scss'
 import Button from '../Utils/Button'
@@ -11,12 +12,14 @@ type Props = {
 
 
 const NewReviewCard = (props: Props) => {
+    const router = useRouter()
     const ratingRef = useRef<HTMLDivElement>(null)
     const [title, setTitle] = useState('')
     const [review, setReview] = useState('')
     const [ratingValue, setRatingValue] = useState<number>(2.5)
-    const { product_id, store_id} = props
-    const [isMouseDown, setIsMouseDown] = useState<boolean>(false)
+    const [defaultRatingValue, setDefaultRatingValue] = useState<number>(2.5)
+    const { product_id, store_id } = props
+    const [isMouseOutside, setIsMouseOutside] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const handleNewReview = async (e: any) => {
@@ -26,7 +29,7 @@ const NewReviewCard = (props: Props) => {
         const bodyDetails = {
             "review_title": title,
             "review_content": review,
-            "review_rating": ratingValue,
+            "review_rating": defaultRatingValue,
             "review_product_id": product_id,
             "review_store_id": store_id
         }
@@ -42,20 +45,32 @@ const NewReviewCard = (props: Props) => {
         const data = await res.json()
         if (res.status === 200) {
             // refresh
-            console.log(data.review_id);
+            router.reload()
         }
-        setIsLoading(false)
     }
 
-    const handleRating = (e: any) => {
+    const handleMoveRating = (e: any) => {
+        setIsMouseOutside(false)
         const ratingDiv = ratingRef.current
 
         var rect = ratingDiv!.getBoundingClientRect();
         var x = (e.clientX - rect.left) / 2; //x position within the element.
         const rating = x / 10
-        const roundedRating = Math.round(rating*2)/2 + .5
-        setRatingValue(roundedRating)
+        const roundedRating = Math.round(rating * 2) / 2 + .5
 
+        // setDefaultRatingValue(roundedRating)
+        setRatingValue(roundedRating)
+    }
+
+    const handleClickRating = (e: any) => {
+        const ratingDiv = ratingRef.current
+
+        var rect = ratingDiv!.getBoundingClientRect();
+        var x = (e.clientX - rect.left) / 2; //x position within the element.
+        const rating = x / 10
+        const roundedRating = Math.round(rating * 2) / 2 + .5
+
+        setDefaultRatingValue(roundedRating)
     }
 
     return (
@@ -64,22 +79,22 @@ const NewReviewCard = (props: Props) => {
             <form onSubmit={e => handleNewReview(e)} className={styles.NewReviewCard_form}>
                 <div className={styles.NewReviewCard_form_input}>
                     <label>Title</label>
-                    <input type="text" onChange={e => setTitle(e.target.value)} required/>
+                    <input type="text" onChange={e => setTitle(e.target.value)} required />
                 </div>
                 <div className={styles.NewReviewCard_form_rating}>
                     <label>Rate Product</label>
-                    <div onMouseDown={() => setIsMouseDown(true)} onMouseMove={isMouseDown ? e => handleRating(e) : undefined} onMouseUp={() => setIsMouseDown(false)} onMouseLeave={() => setIsMouseDown(false)} onClick={ e => handleRating(e)} ref={ratingRef}>
-                        <Rating value={ratingValue}/>
+                    <div onClick={e => { handleClickRating(e) }} onMouseMove={e => handleMoveRating(e)} onMouseLeave={() => setIsMouseOutside(true)} ref={ratingRef}>
+                        <Rating value={isMouseOutside ? defaultRatingValue : ratingValue} />
                     </div>
-                    <span>{ratingValue}</span>
+                    <span>{isMouseOutside ? defaultRatingValue : ratingValue}</span>
                 </div>
                 <div className={styles.NewReviewCard_form_input}>
                     <label>Review</label>
-                    <textarea cols={30} rows={10} onChange={e => setReview(e.target.value)} required/>
+                    <textarea cols={30} rows={10} onChange={e => setReview(e.target.value)} required />
                 </div>
                 <div className={styles.NoReviewCard_form_button}>
-                    {isLoading && <Spinner size={20}/>}
-                    <Button text='Submit'/>
+                    {isLoading && <Spinner size={20} />}
+                    <Button text='Submit' />
                 </div>
             </form>
         </div>

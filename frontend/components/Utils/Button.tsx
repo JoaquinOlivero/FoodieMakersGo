@@ -8,7 +8,7 @@ type Props = {
 const Button = (props: Props) => {
   const { text, onClick } = props
   return (
-    <button className={styles.Button} onClick={() => onClick!()}>{text}</button>
+    <button className={styles.Button} onClick={onClick ? () => onClick!() : undefined}>{text}</button>
   )
 }
 
