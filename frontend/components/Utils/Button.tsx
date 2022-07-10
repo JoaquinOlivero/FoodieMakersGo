@@ -2,11 +2,13 @@ import styles from '../../styles/components/Utils/Button.module.scss'
 
 type Props = {
   text: string;
+  onClick?: Function
 };
 
-const Button = ({ text }: Props) => {
+const Button = (props: Props) => {
+  const { text, onClick } = props
   return (
-    <button className={styles.Button}>{text}</button>
+    <button className={styles.Button} onClick={() => onClick!()}>{text}</button>
   )
 }
 

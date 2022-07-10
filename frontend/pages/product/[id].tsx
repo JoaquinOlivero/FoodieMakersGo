@@ -51,7 +51,7 @@ const Product = ({ data, tokenData }: Data) => {
             {!loading &&
                 <Navbar />}
             <div className={styles.Product}>
-                <ProductCard data={data} />
+                <ProductCard data={data} productId={id} />
                 <DescriptionCard description={data.description} />
                 {id && !loading && <ReviewsCard id={id} user_id={userId} setUserHasReview={setUserHasReview} router={router} />}
                 {user && userId !== data.store_id && !userHasReview && !loading && <NewReviewCard product_id={id} store_id={data.store_id} />}
