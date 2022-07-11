@@ -184,19 +184,20 @@ func GetProduct(c *fiber.Ctx) error {
 	}
 
 	var (
-		product_id    string
-		store_id      string
-		title         string
-		description   string
-		category      string
-		images        []string
-		created_at    string
-		user_id       string
-		name          string
-		city          string
-		state         string
-		rating        float32
-		reviews_count int32
+		product_id      string
+		store_id        string
+		title           string
+		description     string
+		category        string
+		images          []string
+		created_at      string
+		user_id         string
+		name            string
+		city            string
+		state           string
+		payment_methods []string
+		rating          float32
+		reviews_count   int32
 	)
 
 	sqlQuery := `
@@ -211,7 +212,8 @@ func GetProduct(c *fiber.Ctx) error {
 		stores.user_id, 
 		stores.name, 
 		stores.city, 
-		stores.state, 
+		stores.state,
+		stores.payment_methods,
 		ROUND(AVG(reviews.rating),2),
 		COUNT(reviews.rating)
 	FROM 
@@ -224,12 +226,12 @@ func GetProduct(c *fiber.Ctx) error {
 		products.product_id, 
 		stores.user_id`
 
-	err = db.QueryRow(sqlQuery, c.Params("id")).Scan(&product_id, &store_id, &title, &description, &category, pq.Array(&images), &created_at, &user_id, &name, &city, &state, &rating, &reviews_count)
+	err = db.QueryRow(sqlQuery, c.Params("id")).Scan(&product_id, &store_id, &title, &description, &category, pq.Array(&images), &created_at, &user_id, &name, &city, &state, pq.Array(&payment_methods), &rating, &reviews_count)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't retrieve product", "data": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state, "rating": rating, "reviews_count": reviews_count})
+	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state, "payment_methods": payment_methods, "rating": rating, "reviews_count": reviews_count})
 }
 
 func ProductReviews(c *fiber.Ctx) error {

@@ -192,6 +192,7 @@
                 display: flex;
                 align-items: center;
                 width: 85%;
+                margin-bottom: 100px;
 
                 svg {
                     cursor: pointer;
@@ -208,9 +209,48 @@
                 span {
                     margin-left: 8px;
                     font-size: 15px;
+                    letter-spacing: 0.8px;
+                    opacity: 0.6;
                 }
+            }
 
-
+            .ProductCard_details_payment {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 85%;
+                span{
+                    font-size: 15px;
+                    letter-spacing: 0.8px;
+                    opacity: 0.6;
+                }
+                .ProductCard_details_payment_methods {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 10px;
+                    .ProductCard_details_payment_method{
+                        display: flex;
+                        align-items: center;
+                        height: 45px;
+                        border-radius: 5px;
+                        background-color: rgb(240, 240, 240);
+                        div{
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 10px;
+                            span{
+                                opacity: 0.7;
+                                font-weight: 500;
+                            }
+                            svg{
+                                opacity: 0.7;
+                                width: 13%;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -19,6 +19,7 @@ type Data = {
         store_name: string
         store_city: string
         store_state: string
+        payment_methods: [string]
         description: string
         rating: number
         reviews_count: number
