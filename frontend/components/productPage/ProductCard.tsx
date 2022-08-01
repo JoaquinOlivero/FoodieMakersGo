@@ -1,6 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRef, useState } from "react";
 import styles from "../../styles/components/productPage/ProductCard.module.scss";
 import { useAuth } from "../../contexts/AuthContext";
 import Button from "../Utils/Button";
@@ -12,6 +10,7 @@ import DeleteProduct from "./components/DeleteProduct";
 import BankSvg from "../Utils/svg/BankSvg";
 import BitcoinSvg from "../Utils/svg/BitcoinSvg";
 import CardSvg from "../Utils/svg/CardSvg";
+import Router, { NextRouter } from "next/router";
 
 type ProducData = {
   data: {
@@ -28,13 +27,12 @@ type ProducData = {
     description: string;
   };
   productId: string | string[] | undefined;
+  router: NextRouter
 };
 
-const ProductCard = ({ data, productId }: ProducData) => {
+const ProductCard = ({ data, productId, router }: ProducData) => {
   const { userId } = useAuth();
-  const router = useRouter();
   const sliderRef = useRef<HTMLDivElement>(null);
-  const [selectedThumbnail, setSelectedThumbnail] = useState<number>(0);
   const [modal, setModal] = useState<boolean>(false);
   const [edit, setEdit] = useState<boolean>(false);
   const [isDelete, setIsDelete] = useState<boolean>(false);
@@ -46,13 +44,26 @@ const ProductCard = ({ data, productId }: ProducData) => {
     if (isDelete) setIsDelete(false);
   };
 
-  useEffect(() => {
-    const productImageIndexUrl: string = router.asPath.split("#")[1];
-    if (productImageIndexUrl) {
-      const indexThumbnail: string = router.asPath.charAt(router.asPath.length - 1);
-      setSelectedThumbnail(parseInt(indexThumbnail, 10));
+  const handleContactManufacturer = async () => {
+    const url = 'https://api.foodiemakers.xyz/chat/new'
+    const bodyDetails = { "store_id": data.store_id }
+    const res = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bodyDetails)
+    })
+
+    if (res.status === 200 || res.status === 302) {
+      // CHAT CREATED OR CHAT ALREADY EXISTS
+      const data = await res.json()
+      const chatId = data.chat_id
+      router.push(`https://foodiemakers.xyz/chat/${chatId}`)
     }
-  }, []);
+  }
 
   return (
     <div className={styles.ProductCard}>
@@ -168,9 +179,11 @@ const ProductCard = ({ data, productId }: ProducData) => {
             </div>
           </div>
 
-          <div className={styles.ProductCard_details_contact}>
-            <Button text="Contact Manufacturer" />
-          </div>
+          {userId !== data.store_id &&
+            <div className={styles.ProductCard_details_contact} onClick={handleContactManufacturer}>
+              <Button text="Contact Manufacturer" />
+            </div>
+          }
         </div>
       </div>
     </div>

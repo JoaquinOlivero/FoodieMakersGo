@@ -31,4 +31,9 @@ func SetupRoutes(app *fiber.App) {
 	review := app.Group("/review")
 	review.Post("/new", middleware.Protected(), handler.NewReview)
 	review.Post("/delete", middleware.Protected(), handler.DeleteReview)
+
+	// Chat
+	chat := app.Group("/chat")
+	chat.Post("/new", middleware.Protected(), handler.NewChat)
+	chat.Get("/all", middleware.Protected(), handler.RetrieveAllChats)
 }
