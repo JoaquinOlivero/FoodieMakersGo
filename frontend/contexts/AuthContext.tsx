@@ -9,7 +9,7 @@ type authContextType = {
     login: (email: string, password: string) => void,
     logout: () => void,
     userDetails: (id: string, store: boolean) => void,
-    checkToken: () => void,
+    checkToken: () => Promise<number | undefined>,
 }
 
 const authContextDefaultValues: authContextType = {
@@ -20,7 +20,7 @@ const authContextDefaultValues: authContextType = {
     register: () => { },
     logout: () => { },
     userDetails: () => { },
-    checkToken: () => { },
+    checkToken: () => Promise.resolve(400),
 };
 
 const AuthContext = createContext<authContextType>(authContextDefaultValues);
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: Props) {
         setHasStore(store)
     }
 
-    const checkToken = async () => {
+    const checkToken = async (): Promise<number | undefined> => {
         if (user) return
 
         const url = "https://api.foodiemakers.xyz/user/check-token"
@@ -140,7 +140,7 @@ export function AuthProvider({ children }: Props) {
                 return res.status
             }
             return res.status
-        } catch (error) {
+        } catch (error: any) {
             return error
         }
     }

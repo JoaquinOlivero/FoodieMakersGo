@@ -10,7 +10,7 @@ import DeleteProduct from "./components/DeleteProduct";
 import BankSvg from "../Utils/svg/BankSvg";
 import BitcoinSvg from "../Utils/svg/BitcoinSvg";
 import CardSvg from "../Utils/svg/CardSvg";
-import Router, { NextRouter } from "next/router";
+import { NextRouter } from "next/router";
 
 type ProducData = {
   data: {
@@ -61,7 +61,10 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
       // CHAT CREATED OR CHAT ALREADY EXISTS
       const data = await res.json()
       const chatId = data.chat_id
-      router.push(`https://foodiemakers.xyz/chat/${chatId}`)
+      router.push({
+        pathname: `https://foodiemakers.xyz/chat`,
+        query: { "chat_id": chatId }
+      })
     }
   }
 

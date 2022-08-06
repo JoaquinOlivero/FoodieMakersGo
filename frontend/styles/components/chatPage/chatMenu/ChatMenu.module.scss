@@ -1,0 +1,103 @@
+@import '../../../Mixins.scss';
+
+.ChatMenu{
+    height: 100%;
+    width: 28%;
+    overflow-y: scroll;
+
+    @include scrollbars(false, none, rgba(0, 0, 0, 0.1), white);
+
+    .ChatMenu_content{
+        position: relative;
+        // margin: 20px 0;
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        h2{
+            z-index: 20;
+            position:sticky;
+            margin: 0;
+            padding-bottom: 10px;
+            background-color: white;
+            text-align: center;
+            top: 0;
+            width: 100%;
+        }
+        .ChatMenu_single_chat{
+            width: 100%;
+            height: 80px;
+            cursor: pointer;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            transition: background-color 250ms ease;
+            &:hover{
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .ChatMenu_single_chat_content{
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                margin-left: auto;
+                margin-right: auto;
+                width: 96%;
+                height: 98%;
+                
+
+                .ChatMenu_chat_user{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    letter-spacing: 0.8px;
+                    font-size: 15px;
+                    text-transform: capitalize;
+                    margin-bottom: 10px;
+                    .ChatMenu_chat_latest_message_time{
+                        font-size: 11px;
+                        opacity: 0.5;
+                    }
+                }
+
+                .ChatMenu_chat_latest_message{
+                    position: relative;
+                    width: 100%;
+                    .ChatMenu_latest_message_text{
+                        font-size: 14px;
+                        width: 90%;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        opacity: 0.5;
+                    }
+                    .ChatMenu_single_chat_dot{
+                        position: absolute;
+                        opacity: 1;
+                        width: 16px;
+                        height: 16px;
+                        background-color: #fd2922c4;
+                        border-radius: 50%;
+                        right: 5%;
+                        bottom: 0%;
+                        transform: translate(50%, 0%);
+                        font-size: 11px;
+                        font-weight: 500;
+                        line-height: 16px;
+                        color: white;
+                        text-align: center;
+                        >div{
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            font-size: 10px;
+                            color: white;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

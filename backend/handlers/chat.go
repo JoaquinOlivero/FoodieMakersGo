@@ -81,6 +81,7 @@ func RetrieveAllChats(c *fiber.Ctx) error {
 		message_sender_id  string
 		message_read       bool
 		message_created_at time.Time
+		messages_not_read  int32
 		chatsMapSlice      []M
 	)
 
@@ -97,13 +98,16 @@ func RetrieveAllChats(c *fiber.Ctx) error {
 		msg.content as lastmessage_content,
 		msg.sender_id as lastmessage_sender_id,
 		msg.read as lastmessage_read,
-		msg.created_at as lastmessage_created_at
+		msg.created_at as lastmessage_created_at,
+		COUNT(msg_count.read) FILTER (WHERE msg_count.read=FALSE) as unread_messages
 	FROM chats ch
 		JOIN LATERAL (SELECT * FROM messages msg WHERE ch.chat_id = msg.chat_id ORDER BY msg.created_at DESC LIMIT 1) msg ON TRUE
+		LEFT JOIN messages msg_count ON ch.chat_id = msg_count.chat_id
 		INNER JOIN stores ON ch.store_id = stores.user_id
 		INNER JOIN users ON ch.client_id = users.id
 	WHERE 
 		ch.store_id = $1 OR ch.client_id = $1
+	GROUP BY ch.chat_id, stores.name, users.first_name, users.last_name, msg.content, msg.sender_id, msg.read, msg.created_at
 	ORDER BY msg.created_at DESC`
 
 	rows, err := db.Query(sqlQuery, user_id)
@@ -112,14 +116,14 @@ func RetrieveAllChats(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&chat_id, &store_id, &client_id, &latest_activity, &store_name, &client_first_name, &client_last_name, &message_content, &message_sender_id, &message_read, &message_created_at)
+		err = rows.Scan(&chat_id, &store_id, &client_id, &latest_activity, &store_name, &client_first_name, &client_last_name, &message_content, &message_sender_id, &message_read, &message_created_at, &messages_not_read)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't get chats", "data": err.Error()})
 		}
 
 		// chat's latest message
 		elapsedTime := config.GetElapsedTime(message_created_at)
-		message := M{"content": message_content, "sender_id": message_sender_id, "is_read": message_read, "send_time": elapsedTime}
+		message := M{"content": message_content, "sender_id": message_sender_id, "is_read": message_read, "send_time": elapsedTime, "messages_not_read": messages_not_read}
 
 		// chat := M{"chat_id": chat_id, "store_id": store_id, "client_id": client_id, "latest_activity": latest_activity, "store_name": store_name, "client_first_name": client_first_name, "client_last_name": client_last_name, "message_content": message_content, "message_sender_id": message_sender_id, "message_read": message_read, "message_created_at": message_created_at}
 		chat := M{"chat_id": chat_id, "store_id": store_id, "client_id": client_id, "latest_activity": latest_activity, "store_name": store_name, "client_first_name": client_first_name, "client_last_name": client_last_name, "latest_message": message}
