@@ -3,3 +3,5 @@
 .env
 *.rsa
 *.pub
+backend/tmp
+frontend/tmp
