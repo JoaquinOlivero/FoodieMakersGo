@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import styles from "../../../styles/components/chatPage/chatMenu/ChatMenu.module.scss";
 
 interface ChatsData {
@@ -20,14 +19,16 @@ interface ChatsData {
 type props = {
   chats: ChatsData[];
   userId: string;
+  ws: WebSocket
 };
 
 const ChatMenu = (props: props) => {
-  const { chats, userId } = props;
+  const { chats, userId, ws } = props;
 
-  // useEffect(() => {
-  //   console.log(chats);
-  // }, []);
+  const handleSingleChatClick = (chatId: string) => {
+    const message = { action: "singleChat", content: chatId }
+    ws.send(JSON.stringify(message))
+  }
 
   return (
     <div className={styles.ChatMenu}>
@@ -35,7 +36,7 @@ const ChatMenu = (props: props) => {
         <h2>Chat</h2>
         {chats.map((chat) => {
           return (
-            <div key={chat.chat_id} className={styles.ChatMenu_single_chat}>
+            <div key={chat.chat_id} className={styles.ChatMenu_single_chat} onClick={() => handleSingleChatClick(chat.chat_id)}>
               <div className={styles.ChatMenu_single_chat_content}>
                 <div className={styles.ChatMenu_chat_user}>
                   {userId === chat.store_id ? `${chat.client_first_name} ${chat.client_last_name}` : chat.store_name}

@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"time"
-
 	handler "github.com/JoaquinOlivero/FoodieMakers/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -41,6 +39,5 @@ func SetupRoutes(app *fiber.App) {
 	chat.Get("/all", middleware.Protected(), handler.RetrieveAllChats)
 
 	// WebSockets
-	go handler.RunHub()
-	app.Get("/ws", websocket.New(handler.WebSocketConnections, websocket.Config{HandshakeTimeout: time.Minute}))
+	app.Get("/ws", websocket.New(handler.WebSocketConnections))
 }

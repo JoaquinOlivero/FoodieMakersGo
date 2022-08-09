@@ -22,6 +22,15 @@ interface ChatsData {
     }
 }
 
+interface SingleChatData {
+
+}
+
+interface WsMessage {
+    "Action": string
+    "Content": ChatsData[]
+}
+
 
 // USE router.query when coming from product page
 
@@ -29,41 +38,16 @@ const wsURL = 'wss://api.foodiemakers.xyz/ws'
 
 const Chat = () => {
     const { checkToken, userId } = useAuth()
-    const router = useRouter()
     const [chatsData, setChatsData] = useState<Array<ChatsData> | null>(null)
     const [menuLoaded, setMenuLoaded] = useState<boolean>(false)
+    const [singleChatData, setSingleChatData] = useState(null)
     const [ws, setWs] = useState<WebSocket | null>(null)
-
-    const chats = async () => {
-        // const res = await fetch('https://api.foodiemakers.xyz/chat/all', {
-        //     method: 'GET',
-        //     credentials: 'include',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        // })
-        // const data = await res.json()
-
-        // if (res.status === 200) {
-        //     setChatsData(data.chats)
-        //     setMenuLoaded(true)
-
-        // }
-        if (ws) {
-            const message = { action: "userChats" }
-            ws.send(JSON.stringify(message))
-        }
-
-        return
-    }
 
     useEffect(() => {
 
         // check if user is signed in
         checkToken().then((result) => {
-            // if (result === 200) return chats()
-            if (result !== "") return setWs(new WebSocket(wsURL + `?userId=${result}`))
+            if (result !== "" && result != undefined) return setWs(new WebSocket(wsURL + `?userId=${result}`))
             // router.push('/')
         }).catch((err) => {
             // router.push('/')
@@ -76,13 +60,24 @@ const Chat = () => {
         if (ws) {
 
             ws.onopen = () => {
-                console.log('WebSocket Connected');
-                chats()
+                const message = { action: "userChats" }
+                ws.send(JSON.stringify(message))
             }
 
             ws.onmessage = (e) => {
-                const message = JSON.parse(e.data);
-                console.log(message);
+                const message: WsMessage = JSON.parse(e.data);
+                switch (message.Action) {
+                    case "userChats":
+                        setChatsData(message.Content)
+                        setMenuLoaded(true)
+                        break;
+
+                    case "singleChat":
+                        console.log(message.Content)
+                    default:
+                        break;
+                }
+
             }
         }
 
@@ -101,9 +96,9 @@ const Chat = () => {
         <div className={styles.Chat}>
             {userId &&
                 <div className={styles.Chat_card}>
-                    {menuLoaded && chatsData ?
+                    {menuLoaded && chatsData && ws ?
                         <div className={styles.Chat_container}>
-                            <ChatMenu chats={chatsData} userId={userId} />
+                            <ChatMenu chats={chatsData} userId={userId} ws={ws} />
                             <ChatMessage />
                         </div>
                         :
