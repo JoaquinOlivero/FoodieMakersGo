@@ -1,8 +1,11 @@
 package routes
 
 import (
+	"time"
+
 	handler "github.com/JoaquinOlivero/FoodieMakers/handlers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 
 	"github.com/JoaquinOlivero/FoodieMakers/middleware"
 )
@@ -36,4 +39,8 @@ func SetupRoutes(app *fiber.App) {
 	chat := app.Group("/chat")
 	chat.Post("/new", middleware.Protected(), handler.NewChat)
 	chat.Get("/all", middleware.Protected(), handler.RetrieveAllChats)
+
+	// WebSockets
+	go handler.RunHub()
+	app.Get("/ws", websocket.New(handler.WebSocketConnections, websocket.Config{HandshakeTimeout: time.Minute}))
 }

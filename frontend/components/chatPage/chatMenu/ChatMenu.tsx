@@ -13,7 +13,7 @@ interface ChatsData {
     content: string;
     is_read: boolean;
     send_time: string;
-    messages_not_read: number;
+    unread_messages: number;
   };
 }
 
@@ -25,9 +25,9 @@ type props = {
 const ChatMenu = (props: props) => {
   const { chats, userId } = props;
 
-  useEffect(() => {
-    console.log(chats);
-  }, []);
+  // useEffect(() => {
+  //   console.log(chats);
+  // }, []);
 
   return (
     <div className={styles.ChatMenu}>
@@ -45,7 +45,7 @@ const ChatMenu = (props: props) => {
                 <div className={styles.ChatMenu_chat_latest_message}>
                   <div className={styles.ChatMenu_latest_message_text}>{chat.latest_message.content}</div>
                   {/* unread messages count */}
-                  {!chat.latest_message.is_read && chat.latest_message.sender_id !== userId && <div className={styles.ChatMenu_single_chat_dot}>{chat.latest_message.messages_not_read}</div>}
+                  {!chat.latest_message.is_read && chat.latest_message.sender_id !== userId && <div className={styles.ChatMenu_single_chat_dot}>{chat.latest_message.unread_messages}</div>}
                 </div>
               </div>
             </div>

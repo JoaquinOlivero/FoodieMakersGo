@@ -81,11 +81,11 @@ func RetrieveAllChats(c *fiber.Ctx) error {
 		message_sender_id  string
 		message_read       bool
 		message_created_at time.Time
-		messages_not_read  int32
+		unread_messages    int32
 		chatsMapSlice      []M
 	)
 
-	// Get user's chats and the chats' latest message.
+	// Get user's chats, the chats' latest message and the number of unread messages.
 	sqlQuery := `
 	SELECT
 		ch.chat_id, 
@@ -116,16 +116,15 @@ func RetrieveAllChats(c *fiber.Ctx) error {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&chat_id, &store_id, &client_id, &latest_activity, &store_name, &client_first_name, &client_last_name, &message_content, &message_sender_id, &message_read, &message_created_at, &messages_not_read)
+		err = rows.Scan(&chat_id, &store_id, &client_id, &latest_activity, &store_name, &client_first_name, &client_last_name, &message_content, &message_sender_id, &message_read, &message_created_at, &unread_messages)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't get chats", "data": err.Error()})
 		}
 
 		// chat's latest message
 		elapsedTime := config.GetElapsedTime(message_created_at)
-		message := M{"content": message_content, "sender_id": message_sender_id, "is_read": message_read, "send_time": elapsedTime, "messages_not_read": messages_not_read}
+		message := M{"content": message_content, "sender_id": message_sender_id, "is_read": message_read, "send_time": elapsedTime, "unread_messages": unread_messages}
 
-		// chat := M{"chat_id": chat_id, "store_id": store_id, "client_id": client_id, "latest_activity": latest_activity, "store_name": store_name, "client_first_name": client_first_name, "client_last_name": client_last_name, "message_content": message_content, "message_sender_id": message_sender_id, "message_read": message_read, "message_created_at": message_created_at}
 		chat := M{"chat_id": chat_id, "store_id": store_id, "client_id": client_id, "latest_activity": latest_activity, "store_name": store_name, "client_first_name": client_first_name, "client_last_name": client_last_name, "latest_message": message}
 
 		chatsMapSlice = append(chatsMapSlice, chat)

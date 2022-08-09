@@ -18,35 +18,43 @@ interface ChatsData {
         "content": string
         "is_read": boolean
         "send_time": string
-        messages_not_read: number;
+        "unread_messages": number;
     }
 }
 
 
 // USE router.query when coming from product page
 
+const wsURL = 'wss://api.foodiemakers.xyz/ws'
+
 const Chat = () => {
     const { checkToken, userId } = useAuth()
     const router = useRouter()
     const [chatsData, setChatsData] = useState<Array<ChatsData> | null>(null)
     const [menuLoaded, setMenuLoaded] = useState<boolean>(false)
+    const [ws, setWs] = useState<WebSocket | null>(null)
 
     const chats = async () => {
-        const res = await fetch('https://api.foodiemakers.xyz/chat/all', {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-        })
-        const data = await res.json()
+        // const res = await fetch('https://api.foodiemakers.xyz/chat/all', {
+        //     method: 'GET',
+        //     credentials: 'include',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json'
+        //     },
+        // })
+        // const data = await res.json()
 
-        if (res.status === 200) {
-            setChatsData(data.chats)
-            setMenuLoaded(true)
+        // if (res.status === 200) {
+        //     setChatsData(data.chats)
+        //     setMenuLoaded(true)
 
+        // }
+        if (ws) {
+            const message = { action: "userChats" }
+            ws.send(JSON.stringify(message))
         }
+
         return
     }
 
@@ -54,13 +62,40 @@ const Chat = () => {
 
         // check if user is signed in
         checkToken().then((result) => {
-            if (result === 200) return chats()
+            // if (result === 200) return chats()
+            if (result !== "") return setWs(new WebSocket(wsURL + `?userId=${result}`))
             // router.push('/')
         }).catch((err) => {
             // router.push('/')
         });
 
     }, [])
+
+
+    useEffect(() => {
+        if (ws) {
+
+            ws.onopen = () => {
+                console.log('WebSocket Connected');
+                chats()
+            }
+
+            ws.onmessage = (e) => {
+                const message = JSON.parse(e.data);
+                console.log(message);
+            }
+        }
+
+        return () => {
+            if (ws) {
+                ws.onclose = () => {
+                    console.log('WebSocket Disconnected');
+                }
+            }
+
+        }
+    }, [ws])
+
 
     return (
         <div className={styles.Chat}>
