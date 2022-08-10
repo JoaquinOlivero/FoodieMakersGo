@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styles from "../../../styles/components/chatPage/chatMenu/ChatMenu.module.scss";
 
 interface ChatsData {
@@ -24,10 +25,12 @@ type props = {
 
 const ChatMenu = (props: props) => {
   const { chats, userId, ws } = props;
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
   const handleSingleChatClick = (chatId: string) => {
-    const message = { action: "singleChat", content: chatId }
+    const message = { action: "singleChat", chat_id: chatId }
     ws.send(JSON.stringify(message))
+    setSelectedChatId(chatId)
   }
 
   return (
@@ -36,7 +39,7 @@ const ChatMenu = (props: props) => {
         <h2>Chat</h2>
         {chats.map((chat) => {
           return (
-            <div key={chat.chat_id} className={styles.ChatMenu_single_chat} onClick={() => handleSingleChatClick(chat.chat_id)}>
+            <div key={chat.chat_id} className={styles.ChatMenu_single_chat} style={selectedChatId === chat.chat_id ? { backgroundColor: "white" } : {}} onClick={() => handleSingleChatClick(chat.chat_id)}>
               <div className={styles.ChatMenu_single_chat_content}>
                 <div className={styles.ChatMenu_chat_user}>
                   {userId === chat.store_id ? `${chat.client_first_name} ${chat.client_last_name}` : chat.store_name}

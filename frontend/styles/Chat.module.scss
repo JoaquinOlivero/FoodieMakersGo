@@ -1,27 +1,27 @@
 .Chat {
-    width: 100vw;
-    height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Open Sans";
+  .Chat_card {
+    width: 80%;
+    height: 90%;
+    background-color: white;
+    border-radius: 50px;
+    border: 3px solid white;
+    -webkit-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
     display: flex;
     justify-content: center;
     align-items: center;
 
-    .Chat_card {
-        width: 80%;
-        height: 90%;
-        background-color: white;
-        border-radius: 50px;
-        border: 3px solid white;
-        -webkit-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
-        -moz-box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
-        box-shadow: 0px 0px 25px -8px rgba(0, 0, 0, 0.15);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        .Chat_container{
-            height: 92%;
-            width: 95%;
-            display: flex;
-        }
+    .Chat_container {
+      height: 92%;
+      width: 95%;
+      display: flex;
     }
+  }
 }

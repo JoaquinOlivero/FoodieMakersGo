@@ -23,31 +23,42 @@ interface ChatsData {
 }
 
 interface SingleChatData {
-
+    "chat_id": string
+    "client_id": string
+    "client_first_name": string
+    "client_last_name": string
+    "store_id": string
+    "store_name": string
+    "messages": [{
+        "created_at": string
+        "is_read": boolean
+        "message": string
+        "sender_id": string
+    }]
 }
 
 interface WsMessage {
-    "Action": string
-    "Content": ChatsData[]
+    Action: string
+    Content: ChatsData[] | SingleChatData
 }
 
 
 // USE router.query when coming from product page
 
-const wsURL = 'wss://api.foodiemakers.xyz/ws'
+const wsURL = 'wss://api.foodiemakers.xyz/ws' // Change this to an env variable
 
 const Chat = () => {
     const { checkToken, userId } = useAuth()
     const [chatsData, setChatsData] = useState<Array<ChatsData> | null>(null)
     const [menuLoaded, setMenuLoaded] = useState<boolean>(false)
-    const [singleChatData, setSingleChatData] = useState(null)
+    const [singleChatData, setSingleChatData] = useState<SingleChatData | null>(null)
     const [ws, setWs] = useState<WebSocket | null>(null)
 
     useEffect(() => {
 
-        // check if user is signed in
+        // check if user is signed in and establish a websocket connection
         checkToken().then((result) => {
-            if (result !== "" && result != undefined) return setWs(new WebSocket(wsURL + `?userId=${result}`))
+            if (result !== "" && result != undefined && result != 400) return setWs(new WebSocket(wsURL + `?userId=${result}`))
             // router.push('/')
         }).catch((err) => {
             // router.push('/')
@@ -55,7 +66,7 @@ const Chat = () => {
 
     }, [])
 
-
+    // WEBSOCKET CONNECTION
     useEffect(() => {
         if (ws) {
 
@@ -68,12 +79,27 @@ const Chat = () => {
                 const message: WsMessage = JSON.parse(e.data);
                 switch (message.Action) {
                     case "userChats":
-                        setChatsData(message.Content)
+                        setChatsData(message.Content as ChatsData[])
                         setMenuLoaded(true)
                         break;
 
                     case "singleChat":
-                        console.log(message.Content)
+                        console.log('aa');
+                        setSingleChatData(message.Content as SingleChatData)
+                        break;
+
+                    case "newMessage":
+                        const newMessageArr = [...singleChatData!.messages, message.Content]
+
+                        // update the messages array inside singleChatData state.
+                        if (singleChatData) {
+                            setSingleChatData((prevState: any) => ({
+                                ...prevState, ["messages"]: newMessageArr
+                            }));
+                        }
+
+                        break;
+
                     default:
                         break;
                 }
@@ -89,7 +115,7 @@ const Chat = () => {
             }
 
         }
-    }, [ws])
+    }, [ws, singleChatData])
 
 
     return (
@@ -99,7 +125,7 @@ const Chat = () => {
                     {menuLoaded && chatsData && ws ?
                         <div className={styles.Chat_container}>
                             <ChatMenu chats={chatsData} userId={userId} ws={ws} />
-                            <ChatMessage />
+                            {singleChatData && <ChatMessage singleChatData={singleChatData} setSingleChatData={setSingleChatData} userId={userId} ws={ws} />}
                         </div>
                         :
                         <Spinner size={40} />
