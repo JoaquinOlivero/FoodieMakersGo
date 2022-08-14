@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"os"
 
+	"github.com/JoaquinOlivero/FoodieMakers/config"
 	"github.com/JoaquinOlivero/FoodieMakers/routes"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
@@ -11,19 +13,29 @@ import (
 )
 
 func main() {
+	// Logging settings.
+	file, err := os.OpenFile("logs/log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.SetOutput(file)
+
+	// Go Fiber settings.
 	app := fiber.New(fiber.Config{
 		JSONEncoder: json.Marshal,
 		JSONDecoder: json.Unmarshal,
 	})
 	app.Use(
 		cors.New(cors.Config{
-			AllowOrigins:     "https://foodiemakers.xyz",
+			AllowOrigins:     config.Env("CORS_ORIGINS"),
 			AllowHeaders:     "Origin, Content-Type, Accept",
 			AllowMethods:     "GET, POST",
 			AllowCredentials: true,
 		}),
 	)
 
+	// websockets endpoint.
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		// IsWebSocketUpgrade returns true if the client
 		// requested upgrade to the WebSocket protocol.
@@ -33,7 +45,7 @@ func main() {
 		return c.SendStatus(fiber.StatusUpgradeRequired)
 	})
 
-	app.Static("/images", "/secondDisk/FoodieMakers/images") // the path to the images folder should be different in a docker container so it is better to change the path to a modifiable env variable
+	app.Static("/images", config.Env("STATIC_IMAGES_DIRECTORY"))
 
 	routes.SetupRoutes(app)
 

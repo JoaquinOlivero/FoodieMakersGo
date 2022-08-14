@@ -21,16 +21,28 @@ type props = {
   chats: ChatsData[];
   userId: string;
   ws: WebSocket
+  selectedChatId: string | null
+  setSelectedChatId: Function
 };
 
 const ChatMenu = (props: props) => {
-  const { chats, userId, ws } = props;
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+  const { chats, userId, ws, setSelectedChatId, selectedChatId } = props;
 
   const handleSingleChatClick = (chatId: string) => {
     const message = { action: "singleChat", chat_id: chatId }
     ws.send(JSON.stringify(message))
     setSelectedChatId(chatId)
+  }
+
+  const getMessageDate = (date: string) => {
+    const today = new Date(Date.parse(Date()))
+    const messageDate = new Date(Date.parse(date));
+
+    if (today.getFullYear() !== messageDate.getFullYear()) return `${today.getFullYear() - messageDate.getFullYear()}y ago`
+    if (today.getMonth() !== messageDate.getMonth()) return `${today.getMonth() - messageDate.getMonth()}m ago`
+    if (today.getDate() !== messageDate.getDate()) return today.getDate() - messageDate.getDate() === 1 ? "Yesterday" : `${today.getDate() - messageDate.getDate()}d ago`
+
+    return `${messageDate.getHours()}:${messageDate.getMinutes()}`
   }
 
   return (
@@ -43,7 +55,7 @@ const ChatMenu = (props: props) => {
               <div className={styles.ChatMenu_single_chat_content}>
                 <div className={styles.ChatMenu_chat_user}>
                   {userId === chat.store_id ? `${chat.client_first_name} ${chat.client_last_name}` : chat.store_name}
-                  <div className={styles.ChatMenu_chat_latest_message_time}>{chat.latest_message.send_time}</div>
+                  <div className={styles.ChatMenu_chat_latest_message_time}>{getMessageDate(chat.latest_message.send_time)}</div>
                 </div>
 
                 <div className={styles.ChatMenu_chat_latest_message}>

@@ -10,7 +10,7 @@ import (
 )
 
 // Config func to get env value
-func Config(key string) string {
+func Env(key string) string {
 	// load .env file
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -21,7 +21,7 @@ func Config(key string) string {
 
 // Func to connect to database.
 func ConnectDB() (*sql.DB, error) {
-	connStr := Config("POSTGRESQL_URL")      // Database connection string
+	connStr := Env("POSTGRESQL_URL")         // Database connection string
 	db, err := sql.Open("postgres", connStr) // Connect to database
 	if err != nil {
 		return db, err

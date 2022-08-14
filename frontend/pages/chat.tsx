@@ -5,6 +5,8 @@ import { useRouter } from 'next/router'
 import ChatMenu from "../components/chatPage/chatMenu/ChatMenu";
 import ChatMessage from "../components/chatPage/chatMessage/ChatMessage";
 import Spinner from "../components/Utils/Spinner"
+import HomeSvg from "../components/Utils/svg/HomeSvg"
+import Link from 'next/link'
 
 interface ChatsData {
     "chat_id": string
@@ -49,20 +51,25 @@ const wsURL = 'wss://api.foodiemakers.xyz/ws' // Change this to an env variable
 
 const Chat = () => {
     const { checkToken, userId } = useAuth()
+    const router = useRouter()
+    const { chat_id } = router.query
     const [chatsData, setChatsData] = useState<Array<ChatsData> | null>(null)
     const [menuLoaded, setMenuLoaded] = useState<boolean>(false)
     const [singleChatData, setSingleChatData] = useState<SingleChatData | null>(null)
     const [ws, setWs] = useState<WebSocket | null>(null)
+    const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
     useEffect(() => {
-
+        if (userId) return setWs(new WebSocket(wsURL + `?userId=${userId}`))
         // check if user is signed in and establish a websocket connection
         checkToken().then((result) => {
             if (result !== "" && result != undefined && result != 400) return setWs(new WebSocket(wsURL + `?userId=${result}`))
-            // router.push('/')
+            router.push('/')
         }).catch((err) => {
-            // router.push('/')
+            router.push('/')
         });
+
+
 
     }, [])
 
@@ -73,6 +80,11 @@ const Chat = () => {
             ws.onopen = () => {
                 const message = { action: "userChats" }
                 ws.send(JSON.stringify(message))
+                if (chat_id) {
+                    const message = { action: "singleChat", chat_id: chat_id }
+                    ws.send(JSON.stringify(message))
+                    setSelectedChatId(chat_id as string)
+                }
             }
 
             ws.onmessage = (e) => {
@@ -84,7 +96,6 @@ const Chat = () => {
                         break;
 
                     case "singleChat":
-                        console.log('aa');
                         setSingleChatData(message.Content as SingleChatData)
                         break;
 
@@ -97,9 +108,7 @@ const Chat = () => {
                                 ...prevState, ["messages"]: newMessageArr
                             }));
                         }
-
                         break;
-
                     default:
                         break;
                 }
@@ -110,7 +119,7 @@ const Chat = () => {
         return () => {
             if (ws) {
                 ws.onclose = () => {
-                    console.log('WebSocket Disconnected');
+                    // console.log('WebSocket Disconnected');
                 }
             }
 
@@ -122,15 +131,19 @@ const Chat = () => {
         <div className={styles.Chat}>
             {userId &&
                 <div className={styles.Chat_card}>
+                    <Link href="/">
+                        <div className={styles.Chat_home_btn}>
+                            <HomeSvg />
+                        </div>
+                    </Link>
                     {menuLoaded && chatsData && ws ?
                         <div className={styles.Chat_container}>
-                            <ChatMenu chats={chatsData} userId={userId} ws={ws} />
-                            {singleChatData && <ChatMessage singleChatData={singleChatData} setSingleChatData={setSingleChatData} userId={userId} ws={ws} />}
+                            <ChatMenu chats={chatsData} userId={userId} ws={ws} selectedChatId={selectedChatId} setSelectedChatId={setSelectedChatId} />
+                            {singleChatData && <ChatMessage singleChatData={singleChatData} setSingleChatData={setSingleChatData} userId={userId} ws={ws} selectedChatId={selectedChatId} />}
                         </div>
                         :
                         <Spinner size={40} />
                     }
-
                 </div>
             }
         </div>

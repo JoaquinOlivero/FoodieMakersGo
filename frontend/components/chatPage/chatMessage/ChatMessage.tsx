@@ -22,16 +22,12 @@ interface NewMessageData {
     "sender_id": string
 }
 
-interface WsMessage {
-    Action: string
-    Content: NewMessageData
-}
-
 type props = {
     singleChatData: SingleChatData
     userId: string;
     ws: WebSocket
     setSingleChatData: Function
+    selectedChatId: string | null
 }
 
 const currentUserMessageStyle = {
@@ -45,7 +41,7 @@ const otherUserMessageStyle = {
 }
 
 const ChatMessage = (props: props) => {
-    const { singleChatData, userId, ws, setSingleChatData } = props
+    const { singleChatData, userId, ws, setSingleChatData, selectedChatId } = props
     const [msg, setMsg] = useState<string>('')
     const messageContainerRef = useRef<HTMLDivElement | null>(null)
 
@@ -64,39 +60,37 @@ const ChatMessage = (props: props) => {
             const message = { action: "sendMessage", text: msg, chat_id: singleChatData.chat_id }
             ws.send(JSON.stringify(message))
 
-            setMsg('')
+            setMsg('') // when sending a message set the msg input to empty.
+
+            // refresh chat menu with latest message.
+            setTimeout(() => {
+                const messages = { action: "userChats" }
+                ws.send(JSON.stringify(messages))
+            }, 100);
+
+            // In case that the user receiving the message is connected, send a ws to refresh their chat menu.
+            setTimeout(() => {
+                const refreshReceiverChat = { action: "refreshChat", user_id: userId == singleChatData.client_id ? singleChatData.store_id : singleChatData.client_id }
+                ws.send(JSON.stringify(refreshReceiverChat))
+            }, 500);
+
         }
 
 
     }
 
     useEffect(() => {
-        messageContainerRef.current?.scrollIntoView({ behavior: 'smooth' }); // scroll to bottom on new message
-        // if (ws) {
-        //     ws.onmessage = (e) => {
-        //         const message: WsMessage = JSON.parse(e.data);
-        //         switch (message.Action) {
-        //             // Receive message in real-time from the websocket server.
-        //             case "newMessage":
-        //                 const newMessageArr = [...singleChatData!.messages, message.Content]
+        messageContainerRef.current?.scrollIntoView({ behavior: 'auto' }); // scroll to bottom on new message
 
-        //                 // update the messages array inside singleChatData state.
-        //                 if (singleChatData) {
-        //                     setSingleChatData((prevState: SingleChatData) => ({
-        //                         ...prevState, ["messages"]: newMessageArr
-        //                     }));
-        //                 }
-
-        //                 break;
-        //             default:
-        //                 break;
-        //         }
-        //     }
-        // }
-        return () => {
-            setMsg('')
-        }
     }, [singleChatData])
+
+    useEffect(() => {
+        const messages = { action: "userChats" }
+        ws.send(JSON.stringify(messages))
+        return () => {
+            setMsg('') // when changing from one chat tab to another, reset the send message input.
+        }
+    }, [selectedChatId])
 
 
 

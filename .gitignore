@@ -5,3 +5,4 @@
 *.pub
 backend/tmp
 frontend/tmp
+backend/logs

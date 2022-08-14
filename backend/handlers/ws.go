@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/JoaquinOlivero/FoodieMakers/config"
@@ -28,6 +28,7 @@ type Message struct {
 	Action string `json:"action"`
 	Text   string `json:"text"`
 	ChatId string `json:"chat_id"`
+	UserId string `json:"user_id"`
 }
 
 const (
@@ -51,17 +52,17 @@ func runHub(c *websocket.Conn, ticker *time.Ticker) {
 		select {
 		case connection := <-register:
 			clients[connection] = Client{connection.Query("userId"), connection.Query("chatId")}
-			fmt.Printf("User %v connected.\n", clients[connection].UserId)
+			log.Printf("User %v connected.\n", clients[connection].UserId)
 
 		case message := <-command:
 
 			action := message.Data.Action
 
 			switch action {
-			case "userChats":
+			case "userChats": // Get user chats, their latest message and count of unread messages.
 				userId := message.UserConnection.Query("userId")
 				getUserChat(userId, message.UserConnection)
-			case "singleChat":
+			case "singleChat": // Get requested chat by user.
 				userId := message.UserConnection.Query("userId")
 				chatId := message.Data.ChatId
 				getSingleChat(userId, chatId, message.UserConnection)
@@ -69,7 +70,9 @@ func runHub(c *websocket.Conn, ticker *time.Ticker) {
 				chatId := message.Data.ChatId
 				senderUserId := message.UserConnection.Query("userId")
 				sendChatMessage(message.Data.Text, chatId, senderUserId)
-
+			case "refreshChat":
+				userId := message.Data.UserId
+				refreshUserChat(userId)
 			case "newMessageNotification": // Send new message notification
 
 			}
@@ -81,9 +84,9 @@ func runHub(c *websocket.Conn, ticker *time.Ticker) {
 
 		case connection := <-unregister: // Remove the client from the hub
 			userId := clients[connection].UserId
-			fmt.Printf("User %v disconnecting.\n", userId)
+			log.Printf("User %v disconnecting.\n", userId)
 			delete(clients, connection)
-			fmt.Printf("User %v disconnected.\n", userId)
+			log.Printf("User %v disconnected.\n", userId)
 
 		}
 
@@ -109,7 +112,7 @@ func WebSocketConnections(c *websocket.Conn) {
 		messageType, message, err := c.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				fmt.Println("read error:", err)
+				log.Println("read error:", err)
 
 			}
 			return // Calls the deferred function, i.e. closes the connection on error
@@ -122,7 +125,7 @@ func WebSocketConnections(c *websocket.Conn) {
 			// send command
 			command <- Command{c, msg}
 		} else {
-			fmt.Println("websocket message received of type", messageType)
+			log.Println("websocket message received of type", messageType)
 		}
 
 	}
@@ -134,7 +137,7 @@ func getUserChat(userId string, c *websocket.Conn) {
 	// Connect to db
 	db, err := config.ConnectDB()
 	if err != nil {
-		fmt.Println("Db connection error:", err)
+		log.Println("Db connection error:", err)
 		return
 	}
 
@@ -183,7 +186,7 @@ func getUserChat(userId string, c *websocket.Conn) {
 
 	rows, err := db.Query(sqlQuery, userId)
 	if err != nil {
-		fmt.Println("Db select error:", err)
+		log.Println("Db select error:", err)
 		return
 	}
 
@@ -192,13 +195,15 @@ func getUserChat(userId string, c *websocket.Conn) {
 	for rows.Next() {
 		err = rows.Scan(&chat_id, &store_id, &client_id, &latest_activity, &store_name, &client_first_name, &client_last_name, &message_content, &message_sender_id, &message_read, &message_created_at, &unread_messages)
 		if err != nil {
-			fmt.Println("Db select error:", err)
+			log.Println("Db select error:", err)
 			return
 		}
 
 		// chat's latest message
-		elapsedTime := config.GetElapsedTime(message_created_at)
-		message := M{"content": message_content, "sender_id": message_sender_id, "is_read": message_read, "send_time": elapsedTime, "unread_messages": unread_messages}
+		// elapsedTime := config.GetElapsedTime(message_created_at)
+		// fmt.Println(message_created_at.Format(time.Kitchen)) // 11:00AM
+
+		message := M{"content": message_content, "sender_id": message_sender_id, "is_read": message_read, "send_time": message_created_at, "unread_messages": unread_messages}
 
 		chat := M{"chat_id": chat_id, "store_id": store_id, "client_id": client_id, "latest_activity": latest_activity, "store_name": store_name, "client_first_name": client_first_name, "client_last_name": client_last_name, "latest_message": message}
 
@@ -208,7 +213,7 @@ func getUserChat(userId string, c *websocket.Conn) {
 	// get any error encountered during iteration
 	err = rows.Err()
 	if err != nil {
-		fmt.Println("Rows iteration error:", err)
+		log.Println("Rows iteration error:", err)
 		return
 	}
 
@@ -222,11 +227,11 @@ func getUserChat(userId string, c *websocket.Conn) {
 
 	msg, err := json.Marshal(message)
 	if err != nil {
-		fmt.Println("Marshal error:", err)
+		log.Println("Marshal error:", err)
 	}
 	err = c.WriteMessage(websocket.TextMessage, []byte(msg))
 	if err != nil {
-		fmt.Println("write error:", err)
+		log.Println("write error:", err)
 
 		c.WriteMessage(websocket.CloseMessage, []byte{})
 		c.Close()
@@ -244,10 +249,21 @@ func getSingleChat(userId, chatId string, c *websocket.Conn) {
 	// Connect to db
 	db, err := config.ConnectDB()
 	if err != nil {
-		fmt.Println("Db connection error:", err)
+		log.Println("Db connection error:", err)
 		return
 	}
 
+	// Update chat unread messages to read
+	sqlQuery := `UPDATE messages
+	SET read = TRUE
+	WHERE chat_id = $1 AND sender_id != $2`
+	_, err = db.Exec(sqlQuery, chatId, userId)
+	if err != nil {
+		log.Println("Could not insert message into database. Error:", err)
+		return
+	}
+
+	// Get chat data
 	type M map[string]interface{}
 
 	var (
@@ -265,7 +281,7 @@ func getSingleChat(userId, chatId string, c *websocket.Conn) {
 	)
 
 	// Get requested chat.
-	sqlQuery := `
+	sqlQuery = `
 	SELECT ch.store_id, ch.client_id, msg.content, msg.sender_id, msg.read, msg.created_at , st.name, u.first_name, u.last_name
 	FROM chats ch
 	INNER JOIN messages msg ON ch.chat_id = msg.chat_id
@@ -275,7 +291,7 @@ func getSingleChat(userId, chatId string, c *websocket.Conn) {
 	ORDER BY msg.created_at ASC`
 	rows, err := db.Query(sqlQuery, chatId)
 	if err != nil {
-		fmt.Println("Db select error:", err)
+		log.Println("Db select error:", err)
 		return
 	}
 
@@ -288,7 +304,7 @@ func getSingleChat(userId, chatId string, c *websocket.Conn) {
 		// scan all arguments to save them in their respective variables.
 		err = rows.Scan(&store_id, &client_id, &message_content, &message_sender_id, &message_read, &message_created_at, &store_name, &user_first_name, &user_last_name)
 		if err != nil {
-			fmt.Println("Db select error:", err)
+			log.Println("Db select error:", err)
 			return
 		}
 		// Only map variables that are related to a message.
@@ -300,7 +316,7 @@ func getSingleChat(userId, chatId string, c *websocket.Conn) {
 	// get any error encountered during iteration
 	err = rows.Err()
 	if err != nil {
-		fmt.Println("Rows iteration error:", err)
+		log.Println("Rows iteration error:", err)
 		return
 	}
 
@@ -317,12 +333,12 @@ func getSingleChat(userId, chatId string, c *websocket.Conn) {
 
 	msg, err := json.Marshal(message)
 	if err != nil {
-		fmt.Println("Marshal error:", err)
+		log.Println("Marshal error:", err)
 		return
 	}
 	err = c.WriteMessage(websocket.TextMessage, []byte(msg))
 	if err != nil {
-		fmt.Println("write error:", err)
+		log.Println("write error:", err)
 
 		c.WriteMessage(websocket.CloseMessage, []byte{})
 		c.Close()
@@ -347,40 +363,68 @@ func sendChatMessage(message, chatId, senderUserId string) {
 				Content M
 			}
 
-			messageData := M{"message": message, "sender_id": senderUserId, "is_read": false}
+			messageData := M{"message": message, "sender_id": senderUserId, "is_read": true}
 
 			newMessage := Chat{"newMessage", messageData}
 
 			msg, err := json.Marshal(newMessage)
 			if err != nil {
-				fmt.Println("Marshal error:", err)
+				log.Println("Marshal error:", err)
 				return
 			}
 			err = connection.WriteMessage(websocket.TextMessage, []byte(msg))
 			if err != nil {
-				fmt.Println("write error:", err)
+				log.Println("write error:", err)
 
 				connection.WriteMessage(websocket.CloseMessage, []byte{})
 				connection.Close()
 				delete(clients, connection)
 			}
+
+			// Connect to db and insert message.
+			db, err := config.ConnectDB()
+			if err != nil {
+				log.Println("Db connection error:", err)
+				return
+			}
+
+			sqlQuery := `INSERT INTO messages (content, sender_id, chat_id, read, created_at) VALUES ($1, $2, $3, true, current_timestamp)`
+			_, err = db.Exec(sqlQuery, message, senderUserId, chatId)
+			if err != nil {
+				log.Println("Could not insert message into database. Error:", err)
+				return
+			}
+
+			db.Close()
+			return
 		}
 	}
 
 	// Connect to db and insert message.
 	db, err := config.ConnectDB()
 	if err != nil {
-		fmt.Println("Db connection error:", err)
+		log.Println("Db connection error:", err)
 		return
 	}
 
 	sqlQuery := `INSERT INTO messages (content, sender_id, chat_id, created_at) VALUES ($1, $2, $3, current_timestamp)`
 	_, err = db.Exec(sqlQuery, message, senderUserId, chatId)
 	if err != nil {
-		fmt.Println("Could not insert message into database. Error:", err)
+		log.Println("Could not insert message into database. Error:", err)
 		return
 	}
 
 	db.Close()
 
+}
+
+func refreshUserChat(userId string) {
+
+	// refresh chat to user when receiving a new message.
+	for connection := range clients {
+		if clients[connection].UserId == userId {
+			getUserChat(userId, connection)
+			return
+		}
+	}
 }
