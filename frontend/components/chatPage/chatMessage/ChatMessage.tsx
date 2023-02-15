@@ -16,11 +16,6 @@ interface SingleChatData {
         "sender_id": string
     }]
 }
-interface NewMessageData {
-    "is_read": boolean
-    "message": string
-    "sender_id": string
-}
 
 type props = {
     singleChatData: SingleChatData

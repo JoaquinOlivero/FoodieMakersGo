@@ -190,7 +190,11 @@ func getUserChat(userId string, c *websocket.Conn) {
 		return
 	}
 
-	defer rows.Close()
+	defer func() {
+		// close rows connection
+		rows.Close()
+		db.Close()
+	}()
 
 	for rows.Next() {
 		err = rows.Scan(&chat_id, &store_id, &client_id, &latest_activity, &store_name, &client_first_name, &client_last_name, &message_content, &message_sender_id, &message_read, &message_created_at, &unread_messages)
@@ -200,7 +204,6 @@ func getUserChat(userId string, c *websocket.Conn) {
 		}
 
 		// chat's latest message
-		// elapsedTime := config.GetElapsedTime(message_created_at)
 		// fmt.Println(message_created_at.Format(time.Kitchen)) // 11:00AM
 
 		message := M{"content": message_content, "sender_id": message_sender_id, "is_read": message_read, "send_time": message_created_at, "unread_messages": unread_messages}
@@ -298,6 +301,7 @@ func getSingleChat(userId, chatId string, c *websocket.Conn) {
 	defer func() {
 		// close rows connection
 		rows.Close()
+		db.Close()
 	}()
 
 	for rows.Next() {

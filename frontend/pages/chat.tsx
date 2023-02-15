@@ -59,8 +59,11 @@ const Chat = () => {
     const [ws, setWs] = useState<WebSocket | null>(null)
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
+    // WEBSOCKET CONNECTION
     useEffect(() => {
+        window.history.replaceState(null, '', '/chat')
         if (userId) return setWs(new WebSocket(wsURL + `?userId=${userId}`))
+
         // check if user is signed in and establish a websocket connection
         checkToken().then((result) => {
             if (result !== "" && result != undefined && result != 400) return setWs(new WebSocket(wsURL + `?userId=${result}`))
@@ -73,7 +76,6 @@ const Chat = () => {
 
     }, [])
 
-    // WEBSOCKET CONNECTION
     useEffect(() => {
         if (ws) {
 
@@ -116,16 +118,19 @@ const Chat = () => {
             }
         }
 
+    }, [ws, singleChatData])
+
+    useEffect(() => {
         return () => {
             if (ws) {
                 ws.onclose = () => {
                     // console.log('WebSocket Disconnected');
                 }
+                ws.close()
             }
 
         }
-    }, [ws, singleChatData])
-
+    }, [ws])
 
     return (
         <div className={styles.Chat}>
