@@ -330,7 +330,7 @@ func UploadImage(c *fiber.Ctx) error {
 	image := fmt.Sprintf("%s.%s", uuid, fileExt)
 
 	// Save image to static images/product folder
-	err = c.SaveFile(file, fmt.Sprintf("/secondDisk/FoodieMakers/images/products/%s", image)) // the path to the .../images folder should be different in a docker container so it is better to change the path to a modifiable env variable
+	err = c.SaveFile(file, fmt.Sprintf("%s/%s", config.Env("STATIC_IMAGES_DIRECTORY"), image)) // the path to the .../images folder should be different in a docker container so it is better to change the path to a modifiable env variable
 	if err != nil {
 		// log.Println("image save error --> ", err)
 		return c.JSON(fiber.Map{"status": 500, "message": "Could not save image", "data": nil})
