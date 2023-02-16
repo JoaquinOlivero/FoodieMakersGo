@@ -36,7 +36,7 @@ const DeleteProduct = (props: Props) => {
         <div className={styles.DeleteProduct_modal}>
             <h1>Confirm</h1>
             <div className={styles.DeleteProduct_confirmation_content}>
-                <p>Are you sure you want to remove <span>"{title}"</span> from your store?</p>
+                <p>Are you sure you want to remove <span>&ldquo;{title}&ldquo;</span> from your store?</p>
             </div>
             {isLoading ? <Spinner size={20} /> : <Button text='Yes' onClick={handleDeleteProduct} />}
         </div>
