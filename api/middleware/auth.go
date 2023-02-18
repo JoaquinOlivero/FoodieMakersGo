@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -11,7 +11,7 @@ import (
 
 func Protected() fiber.Handler {
 	// Read rsa public key
-	publicKey, err := ioutil.ReadFile("jwt_rsa.pub")
+	publicKey, err := os.ReadFile("jwt.pub")
 	if err != nil {
 		fmt.Println(err)
 	}
