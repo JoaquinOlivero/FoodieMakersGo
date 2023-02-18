@@ -14,6 +14,9 @@ func SetupRoutes(app *fiber.App) {
 	user := app.Group("/user")
 	user.Post("/login", handler.LoginUser)
 	user.Post("/register", handler.RegisterUser)
+	wishlist := user.Group("/wishlist")
+	wishlist.Get("", middleware.Protected(), handler.UserWishlist)
+	wishlist.Post("/add", middleware.Protected(), handler.AddToWishlist)
 
 	user.Post("/logout", middleware.Protected(), handler.LogoutUser)
 	user.Post("/check-token", middleware.Protected(), handler.CheckToken)
