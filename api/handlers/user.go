@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"io/ioutil"
+	"os"
 	"time"
 
 	"github.com/JoaquinOlivero/FoodieMakers/config"
@@ -75,15 +75,15 @@ func LoginUser(c *fiber.Ctx) error {
 
 	// Create RS256 JWT
 	// Read rsa private key
-	privateKey, err := ioutil.ReadFile("jwt.rsa")
+	privateKey, err := os.ReadFile("jwt.pem")
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't generate token", "data": err})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't read private key", "data": err})
 	}
 
 	// Parse rsa private key
 	key, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't generate token", "data": err})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't parse private key", "data": err})
 	}
 
 	// Create RS256 token
@@ -172,7 +172,7 @@ func RegisterUser(c *fiber.Ctx) error {
 
 	// Create RS256 JWT
 	// Read rsa private key
-	privateKey, err := ioutil.ReadFile("jwt.rsa")
+	privateKey, err := os.ReadFile("jwt.pem")
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't generate token", "data": err})
 	}
