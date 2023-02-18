@@ -349,7 +349,7 @@ func AddToWishlist(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Product does not exist.", "data": err})
 	}
 
-	// check that the user doesn't already have the product already in the wishlist.
+	// check that the user doesn't already have the product in the wishlist.
 	sqlQuery = `SELECT product_id FROM wishes WHERE user_id=$1 AND product_id=$2`
 	errWishlist := db.QueryRow(sqlQuery, user_id, body.ProductId).Scan(&body.ProductId)
 	if errWishlist == nil { // no error means that the user already has the product in the wishlist.

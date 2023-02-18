@@ -309,7 +309,6 @@ func ProductReviews(c *fiber.Ctx) error {
 }
 
 func UploadImage(c *fiber.Ctx) error {
-	// TODO: Add image compression.
 	// Parse image file
 	file, err := c.FormFile("image")
 	if err != nil {
@@ -317,8 +316,6 @@ func UploadImage(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": 500, "message": "Server error. Could not get image", "data": nil})
 
 	}
-
-	// Convert file size from Bytes to KB
 
 	// Get image extension from the image file
 	fileExt := strings.Split(file.Filename, ".")[1]
@@ -402,6 +399,5 @@ func SearchProducts(c *fiber.Ctx) error {
 	// Close connection to DB. Just in case
 	rows.Close()
 
-	// return c.Status(fiber.StatusOK).JSON(fiber.Map{"results": products})
 	return c.Status(fiber.StatusOK).JSON(products)
 }
