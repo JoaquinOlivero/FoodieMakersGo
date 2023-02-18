@@ -21,6 +21,7 @@ func SetupRoutes(app *fiber.App) {
 
 	// Product
 	product := app.Group("/product")
+	product.Get("/search", handler.SearchProducts)
 	product.Get("/:id", handler.GetProduct)
 	product.Get("/:id/reviews", handler.ProductReviews)
 	product.Post("/new", middleware.Protected(), handler.NewProduct)

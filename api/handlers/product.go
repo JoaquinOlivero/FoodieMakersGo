@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -308,7 +309,7 @@ func ProductReviews(c *fiber.Ctx) error {
 }
 
 func UploadImage(c *fiber.Ctx) error {
-	// TODO: Add image compression with ffmpeg
+	// TODO: Add image compression.
 	// Parse image file
 	file, err := c.FormFile("image")
 	if err != nil {
@@ -318,7 +319,6 @@ func UploadImage(c *fiber.Ctx) error {
 	}
 
 	// Convert file size from Bytes to KB
-	// fileSize := float64(file.Size) / 1000
 
 	// Get image extension from the image file
 	fileExt := strings.Split(file.Filename, ".")[1]
@@ -340,4 +340,68 @@ func UploadImage(c *fiber.Ctx) error {
 	imageUrl := fmt.Sprintf("https://api.foodiemakers.xyz/images/products/%s", image)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"image_url": imageUrl})
+}
+
+func SearchProducts(c *fiber.Ctx) error {
+	type ProductResult struct {
+		Id           string
+		Title        string
+		Images       []string
+		Rating       float64
+		ReviewsCount int32
+	}
+
+	// Get product from database matching id from params.
+	db, err := config.ConnectDB()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't connect to database", "data": err.Error()})
+	}
+
+	search := c.Query("search")
+
+	var products []ProductResult
+
+	sqlQuery := `
+	SELECT
+		products.product_id,
+		products.title,
+		products.images,
+		ROUND(AVG(reviews.rating),2),
+		COUNT(reviews.rating)
+	FROM
+		products
+		LEFT JOIN reviews ON products.product_id = reviews.product_id
+	WHERE
+		SIMILARITY(products.title, $1) > 0.1
+	GROUP BY
+		products.product_id`
+
+	rows, err := db.Query(sqlQuery, search)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't retrieve product", "data": err.Error()})
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var product ProductResult
+
+		err := rows.Scan(&product.Id, &product.Title, pq.Array(&product.Images), &product.Rating, &product.ReviewsCount)
+		if err != nil {
+			log.Println(err)
+		}
+
+		products = append(products, product)
+	}
+
+	// get any error encountered during iteration
+	err = rows.Err()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"status": "error", "message": "Couldn't get reviews", "data": err.Error()})
+	}
+
+	// Close connection to DB. Just in case
+	rows.Close()
+
+	// return c.Status(fiber.StatusOK).JSON(fiber.Map{"results": products})
+	return c.Status(fiber.StatusOK).JSON(products)
 }
