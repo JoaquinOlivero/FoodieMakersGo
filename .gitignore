@@ -3,7 +3,8 @@
 .env
 *.pem
 *.pub
-backend/tmp
-frontend/tmp
-backend/logs
+/backend/tmp
+/frontend/tmp
+/backend/logs
 images
+/bin/
