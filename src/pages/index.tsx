@@ -42,7 +42,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
   if (cookies) {
     const parsedCookies = cookieParser(cookies)
     const cookieToken = parsedCookies.cookieToken
-    const url = "https://api.foodiemakers.xyz/user/check-token"
+    const url = "https://apifm.joaquinolivero.com/user/check-token"
     try {
       const res = await fetch(url, {
         method: 'POST',

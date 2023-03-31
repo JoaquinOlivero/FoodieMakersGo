@@ -354,7 +354,7 @@ func SearchProducts(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't connect to database", "data": err.Error()})
 	}
 
-	search := c.Query("search")
+	search := c.Query("q")
 
 	var products []ProductResult
 
