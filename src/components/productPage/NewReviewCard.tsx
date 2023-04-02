@@ -25,7 +25,7 @@ const NewReviewCard = (props: Props) => {
     const handleNewReview = async (e: any) => {
         e.preventDefault()
         setIsLoading(true)
-        const url: string = 'https://api.foodiemakers.xyz/review/new'
+        const url: string = 'https://apifm.joaquinolivero.com/review/new'
         const bodyDetails = {
             "review_title": title,
             "review_content": review,

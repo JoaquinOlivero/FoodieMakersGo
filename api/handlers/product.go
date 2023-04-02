@@ -355,22 +355,21 @@ func SearchProducts(c *fiber.Ctx) error {
 	}
 
 	search := c.Query("q")
-
 	var products []ProductResult
 
 	sqlQuery := `
 	SELECT
-		products.product_id,
-		products.title,
-		products.images,
-		ROUND(AVG(reviews.rating),2),
+	products.product_id,
+	products.title,
+	products.images,
+	ROUND(AVG(reviews.rating),2),
 		COUNT(reviews.rating)
-	FROM
+		FROM
 		products
 		LEFT JOIN reviews ON products.product_id = reviews.product_id
-	WHERE
+		WHERE
 		SIMILARITY(products.title, $1) > 0.1
-	GROUP BY
+		GROUP BY
 		products.product_id`
 
 	rows, err := db.Query(sqlQuery, search)

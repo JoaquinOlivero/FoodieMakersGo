@@ -38,7 +38,7 @@ const ReviewsCard = (props: Props) => {
         setReviewsSet(set)
 
         // If the user is signed in, send the user's id in the request.
-        const url = user_id ? `https://api.foodiemakers.xyz/product/${id}/reviews?offset=${offset}&user_id=${user_id}` : `https://api.foodiemakers.xyz/product/${id}/reviews?offset=${offset}`
+        const url = user_id ? `https://apifm.joaquinolivero.com/product/${id}/reviews?offset=${offset}&user_id=${user_id}` : `https://apifm.joaquinolivero.com/product/${id}/reviews?offset=${offset}`
         const res = await fetch(url)
         if (res.status === 200) {
             const data = await res.json()
@@ -66,7 +66,7 @@ const ReviewsCard = (props: Props) => {
 
     const handleDeleteReview = async (review_id: string) => {
         setIsDeleting(true)
-        const url = `https://api.foodiemakers.xyz/review/delete?review_id=${review_id}&product_id=${id}`
+        const url = `https://apifm.joaquinolivero.com/review/delete?review_id=${review_id}&product_id=${id}`
 
         const res = await fetch(url, {
             method: 'POST',
@@ -110,7 +110,7 @@ const ReviewsCard = (props: Props) => {
 
                                         <div className={styles.ReviewsCard_review_header_right}>
                                             {/* Delete review. Only shown to the author of the review */}
-                                            {user_id && review.author_id === user_id && <div onClick={() => handleDeleteReview(review.review_id)}>{isDeleting ? <Spinner size={14}/> : <TrashCan />}</div>}
+                                            {user_id && review.author_id === user_id && <div onClick={() => handleDeleteReview(review.review_id)}>{isDeleting ? <Spinner size={14} /> : <TrashCan />}</div>}
                                             <span>{review.elapsed_time}</span>
                                         </div>
                                     </div>

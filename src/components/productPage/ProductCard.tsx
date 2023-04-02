@@ -45,7 +45,7 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
   };
 
   const handleContactManufacturer = async () => {
-    const url = 'https://api.foodiemakers.xyz/chat/new'
+    const url = 'https://apifm.joaquinolivero.com/chat/new'
     const bodyDetails = { "store_id": data.store_id }
     const res = await fetch(url, {
       method: 'POST',
@@ -62,7 +62,7 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
       const data = await res.json()
       const chatId = data.chat_id
       router.push({
-        pathname: `https://foodiemakers.xyz/chat`,
+        pathname: `https://fm.joaquinolivero.com/chat`,
         query: { "chat_id": chatId }
       })
     }
@@ -86,14 +86,14 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
           {/* Thumbnails */}
           <div className={styles.ProductCard_content_images_thumbnails}>
             {data.images.map((image: string, index: number) => {
-              return <img key={index} src={image} onClick={() => setImageIndex(index)} style={index === imageIndex ? { opacity: 1 } : undefined} />;
+              return <img key={index} src={"https://apifm.joaquinolivero.com/images/products/" + image} onClick={() => setImageIndex(index)} style={index === imageIndex ? { opacity: 1 } : undefined} />;
             })}
           </div>
 
           {/* Image slider */}
           <div className={styles.ProductCard_container_slide} ref={sliderRef}>
             <div className={styles.ProductCard_slide_content}>
-              <img src={data.images[imageIndex]} alt="" />
+              <img src={"https://apifm.joaquinolivero.com/images/products/" + data.images[imageIndex]} alt="" />
             </div>
           </div>
         </div>

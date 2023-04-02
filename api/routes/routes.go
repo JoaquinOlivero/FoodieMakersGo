@@ -31,7 +31,6 @@ func SetupRoutes(app *fiber.App) {
 	product.Post("/update", middleware.Protected(), handler.UpdateProduct)
 	product.Post("/delete", middleware.Protected(), handler.DeleteProduct)
 	product.Post("/upload-image", middleware.Protected(), handler.UploadImage)
-
 	// Review
 	review := app.Group("/review")
 	review.Post("/new", middleware.Protected(), handler.NewReview)

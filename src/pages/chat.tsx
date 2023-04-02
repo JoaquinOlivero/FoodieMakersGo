@@ -47,7 +47,7 @@ interface WsMessage {
 
 // USE router.query when coming from product page
 
-const wsURL = 'wss://api.foodiemakers.xyz/ws' // Change this to an env variable
+const wsURL = 'wss://apifm.joaquinolivero.com/ws' // Change this to an env variable
 
 const Chat = () => {
     const { checkToken, userId } = useAuth()

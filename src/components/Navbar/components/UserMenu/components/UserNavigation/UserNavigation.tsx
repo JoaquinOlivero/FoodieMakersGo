@@ -31,7 +31,7 @@ interface WsMessage {
     Content: ChatsData[]
 }
 
-const wsURL = 'wss://api.foodiemakers.xyz/ws' // Change this to an env variable
+const wsURL = 'wss://apifm.joaquinolivero.com/ws' // Change this to an env variable
 
 const UserNavigation = () => {
     const router = useRouter()
@@ -101,7 +101,7 @@ const UserNavigation = () => {
         // Get images URLs and store them in an array for later use when saving the product details in the DB
         for (let index = 0; index < images.length; index++) {
             const formData = images[index];
-            const url = 'https://api.foodiemakers.xyz/product/upload-image'
+            const url = 'https://apifm.joaquinolivero.com/product/upload-image'
             const res = await fetch(url, {
                 method: 'POST',
                 credentials: 'include',
@@ -117,7 +117,7 @@ const UserNavigation = () => {
         }
 
         // Save product to database.
-        const url = 'https://api.foodiemakers.xyz/product/new'
+        const url = 'https://apifm.joaquinolivero.com/product/new'
         const productDetails: productBody = { "product_title": pName, "product_description": pDescription, "product_category": pCategory, "product_images": productImages }
         console.log(productDetails);
         const res = await fetch(url, {
@@ -130,7 +130,7 @@ const UserNavigation = () => {
         })
         if (res.status === 200) {
             const data = await res.json()
-            const productUrl = `https://foodiemakers.xyz/product/${data.product_id}`
+            const productUrl = `https://fm.joaquinolivero.com/product/${data.product_id}`
             return router.push(productUrl)
         } else {
             console.log(await res.json())
@@ -228,7 +228,7 @@ const UserNavigation = () => {
     // handler for clicking on chat.
     const handleChatClick = (chatId: string) => {
         router.push({
-            pathname: `https://foodiemakers.xyz/chat`,
+            pathname: `https://fm.joaquinolivero.com/chat`,
             query: { "chat_id": chatId }
         })
     }

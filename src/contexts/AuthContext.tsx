@@ -42,7 +42,7 @@ export function AuthProvider({ children }: Props) {
 
     const login = async (email: string, password: string) => {
         const loginDetails = { "email": email, "password": password }
-        const url = "https://api.foodiemakers.xyz/user/login"
+        const url = "https://apifm.joaquinolivero.com/user/login"
         try {
             const res = await fetch(url, {
                 method: 'POST',

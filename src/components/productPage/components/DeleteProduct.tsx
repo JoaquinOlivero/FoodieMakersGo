@@ -17,7 +17,7 @@ const DeleteProduct = (props: Props) => {
     const handleDeleteProduct = async () => {
         setIsLoading(true)
         const deleteDetails = { "product_id": productId }
-        const url = 'https://api.foodiemakers.xyz/product/delete'
+        const url = 'https://apifm.joaquinolivero.com/product/delete'
 
         const res = await fetch(url, {
             method: 'POST',

@@ -81,7 +81,7 @@ const EditProduct = (props: ProducData) => {
       // Get images URLs and store them in an array for later use when saving the product details in the DB
       for (let index = 0; index < images.length; index++) {
         const formData = images[index];
-        const url = 'https://api.foodiemakers.xyz/product/upload-image'
+        const url = 'https://apifm.joaquinolivero.com/product/upload-image'
         const res = await fetch(url, {
           method: 'POST',
           credentials: 'include',
@@ -101,7 +101,7 @@ const EditProduct = (props: ProducData) => {
     }
 
     // Update product in database.
-    const url = 'https://api.foodiemakers.xyz/product/update'
+    const url = 'https://apifm.joaquinolivero.com/product/update'
     const res = await fetch(url, {
       method: 'POST',
       credentials: 'include',

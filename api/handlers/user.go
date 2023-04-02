@@ -100,7 +100,7 @@ func LoginUser(c *fiber.Ctx) error {
 	cookie.Name = "cookieToken"
 	cookie.Value = rsaToken
 	cookie.Expires = time.Now().Add(24 * time.Hour)
-	cookie.Domain = "foodiemakers.xyz"
+	cookie.Domain = "joaquinolivero.com"
 	cookie.Path = "/"
 	cookie.HTTPOnly = true
 	cookie.Secure = true
@@ -197,7 +197,7 @@ func RegisterUser(c *fiber.Ctx) error {
 	cookie.Name = "cookieToken"
 	cookie.Value = rsaToken
 	cookie.Expires = time.Now().Add(24 * time.Hour)
-	cookie.Domain = "foodiemakers.xyz"
+	cookie.Domain = "joaquinolivero.com"
 	cookie.Path = "/"
 	cookie.HTTPOnly = true
 	cookie.Secure = true
