@@ -158,22 +158,25 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
             <div className={styles.ProductCard_details_payment_methods}>
               {data.payment_methods.map((method) => {
                 return (
-                  <div key={method} style={{ width: 100 / data.payment_methods.length + "%" }} className={styles.ProductCard_details_payment_method}>
+                  <div key={method} className={styles.ProductCard_details_payment_method}>
                     {method === "bank_transfer" && (
                       <div>
-                        <BankSvg /> <span>Bank Transfer</span>
+                        <BankSvg />
+                        <span>Bank Transfer</span>
                       </div>
                     )}
 
                     {method === "crypto" && (
                       <div>
-                        <BitcoinSvg /> <span>Crypto</span>
+                        <BitcoinSvg />
+                        <span>Crypto</span>
                       </div>
                     )}
 
                     {method === "credit_card" && (
                       <div>
-                        <CardSvg /> <span>Credit Card</span>
+                        <CardSvg />
+                        <span>Credit Card</span>
                       </div>
                     )}
                   </div>
