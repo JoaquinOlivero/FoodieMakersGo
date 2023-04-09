@@ -1,8 +1,6 @@
 import { GetServerSideProps } from "next";
 import Navbar from "../components/Navbar/Navbar";
 import styles from '../styles/Search.module.scss'
-import Link from "next/link";
-import Rating from "../components/Utils/Rating";
 import ProductCard from "../components/Utils/ProductCard";
 
 type ApiResponse = {
@@ -15,16 +13,23 @@ type ApiResponse = {
 
 type Props = {
     data: [ApiResponse],
+    query: string
 }
 
-const Search = ({ data }: Props) => {
+const Search = ({ data, query }: Props) => {
+
+
     return (
         <>
             <Navbar />
             <div className={styles.Search}>
-                {data && <div className={styles.Search_result}>{data.map((p: ApiResponse) => {
-                    return <ProductCard id={p.Id} title={p.Title} image={p.Images[0]} rating={p.Rating} reviewsCount={p.ReviewsCount} />
-                })}</div>}
+                {data ?
+                    <div className={styles.Search_result}>{data.map((p: ApiResponse) => {
+                        return <ProductCard key={p.Id} id={p.Id} title={p.Title} image={p.Images[0]} rating={p.Rating} reviewsCount={p.ReviewsCount} />
+                    })}</div>
+                    :
+                    <div className={styles.Search_not_found}>The search for <span>{query}</span> did not return any results.</div>
+                }
             </div>
         </>
     )
@@ -36,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     // Get search query
     const q = context.query.q
     const res = await fetch(`https://apifm.joaquinolivero.com/product/search?q=${q}`)
-    const data = await res.json()
+    const data: [ApiResponse] = await res.json()
     if (res.status !== 200) { // If product does not exist return a next.js' not found (404 page)
         return {
             notFound: true,
@@ -45,7 +50,8 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
 
     return {
         props: {
-            data: data
+            data: data, // Array of products found
+            query: q // String that is the search text made by the user.
         }
     }
 }

@@ -11,46 +11,17 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 60px 80px;
-    .Search_result_product {
-      position: relative;
-      cursor: pointer;
-      width: 220px;
-      height: 350px;
-      background-color: #f6f6f8;
-      border-radius: 20px;
-      transition: transform 100ms;
-      &:hover {
-        transform: scale(1.02);
-      }
+  }
 
-      img {
-        border-top-left-radius: 20px;
-        border-top-right-radius: 20px;
-        width: 100%;
-        height: auto;
-        border-bottom: 2px solid #ff5650;
-      }
+  .Search_not_found {
+    text-align: center;
+    padding: 40px 0;
+    font-size: 18px;
 
-      .Search_product_title {
-        text-align: center;
-        padding: 0 5px;
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
-
-      .Search_product_rating {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        background-color: #fcfcfc;
-        width: 100%;
-        position: absolute;
-        bottom: 0;
-        transform: translateY(110%);
-        font-weight: 600;
-      }
+    span {
+      color: #ff5650;
+      text-transform: capitalize;
+      font-weight: 700;
     }
   }
 }
