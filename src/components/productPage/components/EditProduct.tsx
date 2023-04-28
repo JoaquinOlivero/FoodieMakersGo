@@ -149,7 +149,7 @@ const EditProduct = (props: ProducData) => {
         <div className={styles.EditProduct_form_images_selected}>
           {imagesUrl.length > 0 &&
             imagesUrl.map((url, index) => {
-              return <img key={index} src={url} alt={`image-selected-${index}`} />
+              return <img key={index} src={`https://apifm.joaquinolivero.com/images/products/${url}`} alt={`image-selected-${index}`} />
             })
           }
         </div>
