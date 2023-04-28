@@ -6,8 +6,7 @@ const SearchBar = () => {
     const router = useRouter()
     const [search, setSearch] = useState<string>("")
 
-    const onSubmitSearch = async () => {
-        await setSearch("")
+    const onSubmitSearch = () => {
         router.push("/search?q=" + search)
     }
 
