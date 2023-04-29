@@ -10,6 +10,10 @@ import (
 
 func SetupRoutes(app *fiber.App) {
 
+	// Home
+	home := app.Group("/home")
+	home.Get("/", handler.Home) // Home page. foodiemakers.joaquinolivero.com
+
 	// User
 	user := app.Group("/user")
 	user.Post("/login", handler.LoginUser)
