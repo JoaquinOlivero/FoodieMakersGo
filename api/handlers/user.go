@@ -247,7 +247,7 @@ func LogoutUser(c *fiber.Ctx) error {
 		Name: "cookieToken",
 		// Set expiry date to the past
 		Expires:  time.Now().Add(-(time.Hour * 2)),
-		Domain:   "foodiemakers.xyz",
+		Domain:   "joaquinolivero.com",
 		Path:     "/",
 		HTTPOnly: true,
 		Secure:   true,

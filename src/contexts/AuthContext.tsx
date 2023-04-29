@@ -68,7 +68,7 @@ export function AuthProvider({ children }: Props) {
 
     const register = async (firstName: string, lastName: string, email: string, password: string) => {
         const registerDetails = { "first_name": firstName, "last_name": lastName, "email": email, "password": password }
-        const url = "https://api.foodiemakers.xyz/user/register"
+        const url = "https://apifm.joaquinolivero.com/user/register"
         try {
             const res = await fetch(url, {
                 method: 'POST',
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: Props) {
     const logout = async () => {
 
 
-        const url = "https://api.foodiemakers.xyz/user/logout"
+        const url = "https://apifm.joaquinolivero.com/user/logout"
         try {
             const res = await fetch(url, {
                 method: 'POST',
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: Props) {
     const checkToken = async (): Promise<string | undefined | number> => {
         if (user) return
 
-        const url = "https://api.foodiemakers.xyz/user/check-token"
+        const url = "https://apifm.joaquinolivero.com/user/check-token"
         try {
             const res = await fetch(url, {
                 method: 'POST',
