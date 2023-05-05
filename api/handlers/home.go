@@ -42,6 +42,8 @@ func Home(c *fiber.Ctx) error {
 		products.category_id = $1
 	GROUP BY 
 		products.product_id, categories.name
+	HAVING
+		COUNT(reviews.rating) > 40
 	ORDER BY 
 		average_rating DESC
 	LIMIT 5

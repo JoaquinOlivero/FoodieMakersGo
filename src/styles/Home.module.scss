@@ -1,3 +1,26 @@
 .Home {
-    position: relative;
+  position: relative;
+  width: 100%;
+
+  .Home_content {
+    margin-left: auto;
+    margin-right: auto;
+    width: 88vw;
+    .Home_content_category {
+      margin: 80px;
+      .Home_category_title {
+        text-align: center;
+        margin: 10px;
+        font-size: 22px;
+        font-weight: 600;
+        color: rgb(139, 137, 137);
+        text-transform: capitalize;
+      }
+      .Home_category_products {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+      }
+    }
+  }
 }
