@@ -15,6 +15,7 @@ type Data = {
         title: string
         images: [string]
         category: string
+        category_id: number
         store_id: string
         store_name: string
         store_city: string
@@ -75,6 +76,8 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
             notFound: true,
         }
     }
+
+    console.log(data)
 
     // Check if user is signed in
     const cookies = context.req.headers.cookie

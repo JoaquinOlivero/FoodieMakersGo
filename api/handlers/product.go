@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -49,7 +50,7 @@ func NewProduct(c *fiber.Ctx) error {
 
 	// Insert product into database and retrieve product id
 	var product_id string
-	sqlQuery = `INSERT INTO products (store_id, title, description, category, images, created_at) VALUES ($1, $2, $3, $4, $5, current_timestamp) RETURNING product_id`
+	sqlQuery = `INSERT INTO products (store_id, title, description, category_id, images, created_at) VALUES ($1, $2, $3, $4, $5, current_timestamp) RETURNING product_id`
 	err = db.QueryRow(sqlQuery, user_id, product.Title, product.Description, product.Category, pq.Array(product.Images)).Scan(&product_id)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't create product", "data": err.Error()})
@@ -177,7 +178,6 @@ func DeleteProduct(c *fiber.Ctx) error {
 }
 
 func GetProduct(c *fiber.Ctx) error {
-
 	// Get product from database matching id from params.
 	db, err := config.ConnectDB()
 	if err != nil {
@@ -190,6 +190,7 @@ func GetProduct(c *fiber.Ctx) error {
 		title           string
 		description     string
 		category        string
+		category_id     int
 		images          []string
 		created_at      string
 		user_id         string
@@ -197,8 +198,8 @@ func GetProduct(c *fiber.Ctx) error {
 		city            string
 		state           string
 		payment_methods []string
-		rating          float32
-		reviews_count   int32
+		rating          sql.NullFloat64
+		reviews_count   float64
 	)
 
 	sqlQuery := `
@@ -207,7 +208,8 @@ func GetProduct(c *fiber.Ctx) error {
 		products.store_id, 
 		products.title, 
 		products.description, 
-		products.category, 
+		categories.name,
+		categories.id,
 		products.images, 
 		products.created_at, 
 		stores.user_id, 
@@ -219,20 +221,27 @@ func GetProduct(c *fiber.Ctx) error {
 		COUNT(reviews.rating)
 	FROM 
 		products 
-		INNER JOIN stores ON products.store_id = stores.user_id 
-		LEFT JOIN reviews ON products.product_id = reviews.product_id 
+	INNER JOIN 
+		stores ON products.store_id = stores.user_id 
+	LEFT JOIN 
+		reviews ON products.product_id = reviews.product_id 
+	LEFT JOIN 
+		categories ON products.category_id = categories.id
 	WHERE 
 		products.product_id = $1
 	GROUP BY 
 		products.product_id, 
-		stores.user_id`
+		stores.user_id,
+		categories.name,
+		categories.id
+	`
 
-	err = db.QueryRow(sqlQuery, c.Params("id")).Scan(&product_id, &store_id, &title, &description, &category, pq.Array(&images), &created_at, &user_id, &name, &city, &state, pq.Array(&payment_methods), &rating, &reviews_count)
+	err = db.QueryRow(sqlQuery, c.Params("id")).Scan(&product_id, &store_id, &title, &description, &category, &category_id, pq.Array(&images), &created_at, &user_id, &name, &city, &state, pq.Array(&payment_methods), &rating, &reviews_count)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "error", "message": "Couldn't retrieve product", "data": err.Error()})
 	}
 
-	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state, "payment_methods": payment_methods, "rating": rating, "reviews_count": reviews_count})
+	return c.JSON(fiber.Map{"product_id": product_id, "store_id": store_id, "title": title, "description": description, "category": category, "category_id": category_id, "images": images, "created_at": created_at, "store_name": name, "store_city": city, "store_state": state, "payment_methods": payment_methods, "rating": rating, "reviews_count": reviews_count})
 }
 
 func ProductReviews(c *fiber.Ctx) error {
@@ -327,16 +336,14 @@ func UploadImage(c *fiber.Ctx) error {
 	image := fmt.Sprintf("%s.%s", uuid, fileExt)
 
 	// Save image to static images/product folder
-	err = c.SaveFile(file, fmt.Sprintf("%s/%s", config.Env("STATIC_IMAGES_DIRECTORY"), image)) // the path to the .../images folder should be different in a docker container so it is better to change the path to a modifiable env variable
+	err = c.SaveFile(file, fmt.Sprintf("%s/products/%s", config.Env("STATIC_IMAGES_DIRECTORY"), image)) // the path to the .../images folder should be different in a docker container so it is better to change the path to a modifiable env variable
 	if err != nil {
 		// log.Println("image save error --> ", err)
 		return c.JSON(fiber.Map{"status": 500, "message": "Could not save image", "data": nil})
 	}
 
-	// Return image url
-	imageUrl := fmt.Sprintf("https://api.foodiemakers.xyz/images/products/%s", image)
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"image_url": imageUrl})
+	// Return image filename
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"image_url": image})
 }
 
 func SearchProducts(c *fiber.Ctx) error {

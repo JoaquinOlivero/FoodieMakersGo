@@ -17,6 +17,7 @@ type ProducData = {
     title: string;
     images: [string];
     category: string;
+    category_id: number;
     store_id: string;
     store_name: string;
     store_city: string;
@@ -72,7 +73,7 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
     <div className={styles.ProductCard}>
       {modal && edit && (
         <Modal onExit={closeModal} onClickOutside={closeModal}>
-          <EditProduct title={data.title} images={data.images} category={data.category} description={data.description} />
+          <EditProduct title={data.title} images={data.images} category={data.category} description={data.description} category_id={data.category_id} />
         </Modal>
       )}
       {modal && isDelete && (
@@ -122,13 +123,15 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
           )}
           <div className={styles.ProductCard_details_header}>
             <h1>{data.title}</h1>
-            <div className={styles.ProductCard_header_reviews}>
-              <div className={styles.ProductCard_header_reviews_rating}>
-                <Rating value={data.rating} />
-                <span>{data.rating}</span>
+            {data.reviews_count > 0 &&
+              <div className={styles.ProductCard_header_reviews}>
+                <div className={styles.ProductCard_header_reviews_rating}>
+                  <Rating value={data.rating} />
+                  <span>{data.rating}</span>
+                </div>
+                <div className={styles.ProductCard_header_reviews_count}>({data.reviews_count === 1 ? `${data.reviews_count} review` : `${data.reviews_count} reviews`})</div>
               </div>
-              <div className={styles.ProductCard_header_reviews_count}>({data.reviews_count === 1 ? `${data.reviews_count} review` : `${data.reviews_count} reviews`})</div>
-            </div>
+            }
             <div className={styles.break}></div>
           </div>
 

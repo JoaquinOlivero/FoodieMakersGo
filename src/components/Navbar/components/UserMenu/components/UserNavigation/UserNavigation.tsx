@@ -39,7 +39,7 @@ const UserNavigation = () => {
     const [modal, setModal] = useState<boolean>(false)
     const [pName, setPName] = useState<string>('')
     const [pDescription, setPDescription] = useState<string>('')
-    const [pCategory, setPCategory] = useState<string>('dairy')
+    const [pCategory, setPCategory] = useState<number>(0)
     const [images, setImages] = useState<any>([])
     const [imagesUrl, setImagesUrl] = useState<Array<string>>([])
     const [loading, setLoading] = useState<boolean>(false)
@@ -56,7 +56,7 @@ const UserNavigation = () => {
     const closeModal = () => {
         setModal(false)
         setPName('')
-        setPCategory('')
+        setPCategory(0)
         setPDescription('')
         setImages([])
         setImagesUrl([])
@@ -91,7 +91,7 @@ const UserNavigation = () => {
         type productBody = {
             product_title: string,
             product_description: string,
-            product_category: string,
+            product_category: number,
             product_images: string[]
         }
 
@@ -119,7 +119,7 @@ const UserNavigation = () => {
         // Save product to database.
         const url = 'https://apifm.joaquinolivero.com/product/new'
         const productDetails: productBody = { "product_title": pName, "product_description": pDescription, "product_category": pCategory, "product_images": productImages }
-        console.log(productDetails);
+
         const res = await fetch(url, {
             method: 'POST',
             credentials: 'include',
@@ -133,7 +133,7 @@ const UserNavigation = () => {
             const productUrl = `https://fm.joaquinolivero.com/product/${data.product_id}`
             return router.push(productUrl)
         } else {
-            console.log(await res.json())
+            console.log("error")
         }
         setLoading(false)
         return
@@ -303,17 +303,17 @@ const UserNavigation = () => {
                             </div>
                             <div className={styles.UserNavigation_form_input}>
                                 <label>Category</label>
-                                <select onChange={e => setPCategory(e.target.value)} defaultValue='dairy'>
-                                    <option value="dairies">Dairies</option>
-                                    <option value="snacks">Snacks</option>
-                                    <option value="frozen-foods">Frozen Foods</option>
-                                    <option value="pasta">Pasta & Noodles</option>
-                                    <option value="bread-bakery">Bread & Bakery</option>
-                                    <option value="oils">Oils & Vinegars</option>
-                                    <option value="beverages">Beverages</option>
-                                    <option value="alcohol">Wines & Alcohol Drinks</option>
-                                    <option value="canned-goods">Canned Goods</option>
-                                    <option value="dry-goods">Dry Goods</option>
+                                <select onChange={e => setPCategory(parseInt(e.target.value, 10))}>
+                                    <option value="1">Frozen Foods</option>
+                                    <option value="2">Dairies</option>
+                                    <option value="3">Wines & Alcohol Drinks</option>
+                                    <option value="4">Bread & Bakery</option>
+                                    <option value="5">Beverages</option>
+                                    <option value="6">Dry Goods</option>
+                                    <option value="7">Oils</option>
+                                    <option value="8">Canned Goods</option>
+                                    <option value="9">Snacks</option>
+                                    <option value="10">Pasta & Noodles</option>
                                 </select>
                             </div>
                             <div className={styles.UserNavigation_form_input}>

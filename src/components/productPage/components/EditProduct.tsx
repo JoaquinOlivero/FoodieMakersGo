@@ -8,18 +8,19 @@ type ProducData = {
   title: string
   images: [string]
   category: string
+  category_id: number
   description: string
 }
 
 const EditProduct = (props: ProducData) => {
   const router = useRouter()
   const { id } = router.query
-  const { title, category, description } = props
+  const { title, category, description, category_id } = props
   const imageLabel = useRef<HTMLLabelElement>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [pName, setPName] = useState<string>('')
   const [pDescription, setPDescription] = useState<string>('')
-  const [pCategory, setPCategory] = useState<string>('')
+  const [pCategory, setPCategory] = useState<number>(0)
   const [images, setImages] = useState<any>([])
   const [imagesUrl, setImagesUrl] = useState<Array<string>>(props.images)
 
@@ -53,7 +54,7 @@ const EditProduct = (props: ProducData) => {
       product_id: string | string[]
       title?: string,
       description?: string,
-      category?: string,
+      category_id?: number,
       images?: string[]
       old_images?: string[]
     }
@@ -62,7 +63,7 @@ const EditProduct = (props: ProducData) => {
 
     if (pName.length > 0 && pName !== title) updateProductDetails["title"] = pName
     if (pDescription.length > 0 && pDescription !== description) updateProductDetails["description"] = pDescription
-    if (pCategory.length > 0 && pCategory !== category) updateProductDetails["category"] = pCategory
+    if (pCategory > 0 && pCategory !== category_id) updateProductDetails["category_id"] = pCategory
 
     // if new images
     if (images.length > 0) {
@@ -132,13 +133,17 @@ const EditProduct = (props: ProducData) => {
         </div>
         <div className={styles.EditProduct_form_input}>
           <label>Category</label>
-          <select onChange={e => setPCategory(e.target.value)} defaultValue={category}>
-            <option value="dairies">Dairies</option>
-            <option value="fruits-vegetables">Fruits & Vegetables</option>
-            <option value="breads-sweets">Breads Sweets</option>
-            <option value="frozen-seafoods">Frozen Seafoods</option>
-            <option value="raw-meats">Raw Meats</option>
-            <option value="alcohol">Wines & Alcohol Drinks</option>
+          <select onChange={e => setPCategory(parseInt(e.target.value, 10))} defaultValue={category_id}>
+            <option value="1">Frozen Foods</option>
+            <option value="2">Dairies</option>
+            <option value="3">Wines & Alcohol Drinks</option>
+            <option value="4">Bread & Bakery</option>
+            <option value="5">Beverages</option>
+            <option value="6">Dry Goods</option>
+            <option value="7">Oils</option>
+            <option value="8">Canned Goods</option>
+            <option value="9">Snacks</option>
+            <option value="10">Pasta & Noodles</option>
           </select>
         </div>
         <div className={styles.EditProduct_form_input}>
