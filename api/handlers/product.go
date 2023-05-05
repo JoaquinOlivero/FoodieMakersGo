@@ -280,7 +280,7 @@ func ProductReviews(c *fiber.Ctx) error {
 	}
 
 	// Check if current user already has a review in the requested product.
-	err = db.QueryRow("SELECT review_id FROM reviews WHERE author_id=$1", user_id).Scan(&review_id)
+	err = db.QueryRow("SELECT review_id FROM reviews WHERE author_id=$1 AND product_id=$2", user_id, c.Params("id")).Scan(&review_id)
 	if err == nil { // If there are not errors the user already reviewed the product
 		userHasReview = true
 	}
