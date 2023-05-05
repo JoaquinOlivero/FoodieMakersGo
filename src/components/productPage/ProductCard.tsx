@@ -12,6 +12,11 @@ import BitcoinSvg from "../Utils/svg/BitcoinSvg";
 import CardSvg from "../Utils/svg/CardSvg";
 import { NextRouter } from "next/router";
 
+type rating = {
+  Float64: number
+  Valid: boolean
+}
+
 type ProducData = {
   data: {
     title: string;
@@ -23,7 +28,7 @@ type ProducData = {
     store_city: string;
     store_state: string;
     payment_methods: [string];
-    rating: number;
+    rating: rating;
     reviews_count: number;
     description: string;
   };
@@ -123,11 +128,11 @@ const ProductCard = ({ data, productId, router }: ProducData) => {
           )}
           <div className={styles.ProductCard_details_header}>
             <h1>{data.title}</h1>
-            {data.reviews_count > 0 &&
+            {data.rating.Valid &&
               <div className={styles.ProductCard_header_reviews}>
                 <div className={styles.ProductCard_header_reviews_rating}>
-                  <Rating value={data.rating} />
-                  <span>{data.rating}</span>
+                  <Rating value={data.rating.Float64} />
+                  <span>{data.rating.Float64}</span>
                 </div>
                 <div className={styles.ProductCard_header_reviews_count}>({data.reviews_count === 1 ? `${data.reviews_count} review` : `${data.reviews_count} reviews`})</div>
               </div>

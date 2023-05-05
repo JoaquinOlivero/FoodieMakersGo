@@ -10,6 +10,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import styles from '../../styles/product/Product.module.scss'
 import cookieParser from "../../utils/cookieParser";
 
+type rating = {
+    Float64: number
+    Valid: boolean
+}
+
 type Data = {
     data: {
         title: string
@@ -22,7 +27,7 @@ type Data = {
         store_state: string
         payment_methods: [string]
         description: string
-        rating: number
+        rating: rating
         reviews_count: number
     },
     tokenData: {
@@ -76,8 +81,6 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
             notFound: true,
         }
     }
-
-    console.log(data)
 
     // Check if user is signed in
     const cookies = context.req.headers.cookie
