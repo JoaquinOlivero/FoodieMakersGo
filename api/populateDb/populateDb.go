@@ -2,7 +2,6 @@ package populateDb
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -17,6 +16,7 @@ var (
 )
 
 func AddReviews() error {
+	log.Println("add reviews")
 	// select all users from db
 	var userIds []string
 	db, err := config.ConnectDB()
@@ -44,7 +44,18 @@ func AddReviews() error {
 		StoreId string
 	}
 	var products []Products
-	sqlQuery = "SELECT product_id, store_id FROM products"
+	sqlQuery = `
+	SELECT
+		products.product_id, products.store_id
+	FROM 
+		products
+	LEFT JOIN 
+		reviews ON products.product_id = reviews.product_id
+	GROUP BY 
+		products.product_id
+	HAVING
+		COUNT(reviews.rating) < 10
+	`
 	rows, err = db.Query(sqlQuery)
 	if err != nil {
 		return err
@@ -85,17 +96,19 @@ func AddReviews() error {
 }
 
 func AddProducts() error {
-
+	log.Println("add product")
 	// select all users from db
 	var ids []string
 	db, err := config.ConnectDB()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	sqlQuery := "SELECT id FROM users"
 	rows, err := db.Query(sqlQuery)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	defer rows.Close()
@@ -106,7 +119,6 @@ func AddProducts() error {
 	}
 
 	// insert products in db one by one
-	category := []string{"dairies", "snacks", "frozen foods", "pasta and noodles", "bread and bakery", "oils", "beverages", "alcohol", "dry goods", "canned goods"}
 	images := []string{"f101f08e-32df-495c-bbe5-587d6f328846.jpg", "56fdcbab-15fa-430f-9ba3-b6d3c627a702.jpg", "5f8aa010-a7e6-4f9e-8251-3adf5eab9cae.jpg", "03578ea2-29e3-4f50-803d-fd21a2a96831.jpg", "a9100a4f-c78b-43b2-9f2b-24f9beb446d7.jpg"}
 	pNames := `[{
 		"products": "Cookies Cereal Nut"
@@ -208,32 +220,30 @@ func AddProducts() error {
 
 	i := 0
 
-	s := rand.NewSource(time.Now().Unix())
-	r := rand.New(s) // initialize local pseudorandom generator
+	// Set the random seed based on the current time
+	rand.Seed(time.Now().UnixNano())
 
 	for _, id := range ids {
 
 		if i < 40 {
-			randCat := r.Intn(len(category))
-			randImg := r.Intn(len(images))
-			imageUrl := fmt.Sprintf("https://api.foodiemakers.xyz/images/products/%s", images[randImg])
-			arrImg := []string{imageUrl}
-			sqlQuery = `INSERT INTO products (store_id, title, description, category, images, created_at) VALUES ($1, $2, $3, $4, $5, current_timestamp) RETURNING product_id`
-			_, err := db.Exec(sqlQuery, id, productNames[i], description, category[randCat], pq.Array(arrImg))
+			arrImg := []string{images[rand.Intn(4)+1]}
+			sqlQuery = `INSERT INTO products (store_id, title, description, category_id, images, created_at) VALUES ($1, $2, $3, $4, $5, current_timestamp) RETURNING product_id`
+			result, err := db.Exec(sqlQuery, id, productNames[i], description, rand.Intn(10)+1, pq.Array(arrImg))
 			if err != nil {
+				log.Println(err)
 				return err
 			}
+
+			log.Println(result.RowsAffected())
 		}
 		i += 1
 
 		if i < 40 {
-			randCat := r.Intn(len(category))
-			randImg := r.Intn(len(images))
-			imageUrl := fmt.Sprintf("https://api.foodiemakers.xyz/images/products/%s", images[randImg])
-			arrImg := []string{imageUrl}
-			sqlQuery = `INSERT INTO products (store_id, title, description, category, images, created_at) VALUES ($1, $2, $3, $4, $5, current_timestamp) RETURNING product_id`
-			_, err := db.Exec(sqlQuery, id, productNames[i], description, category[randCat], pq.Array(arrImg))
+			arrImg := []string{images[rand.Intn(4)+1]}
+			sqlQuery = `INSERT INTO products (store_id, title, description, category_id, images, created_at) VALUES ($1, $2, $3, $4, $5, current_timestamp) RETURNING product_id`
+			_, err := db.Exec(sqlQuery, id, productNames[i], description, rand.Intn(10)+1, pq.Array(arrImg))
 			if err != nil {
+				log.Println(err)
 				return err
 			}
 		}
