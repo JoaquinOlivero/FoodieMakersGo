@@ -74,7 +74,7 @@ export default Product
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
     // Check if product exists and retrieve product data
     const id = context.params.id
-    const res = await fetch('https://apifm.joaquinolivero.com/product/' + id)
+    const res = await fetch('http://localhost:4000/product/' + id)
     const data = await res.json()
     if (res.status === 400) { // If product does not exist return a next.js' not found (404 page)
         return {
@@ -87,7 +87,7 @@ export const getServerSideProps: GetServerSideProps = async (context: any) => {
     if (cookies) {
         const parsedCookies = cookieParser(cookies)
         const cookieToken = parsedCookies.cookieToken
-        const url = "https://apifm.joaquinolivero.com/user/check-token"
+        const url = "http://localhost:4000/user/check-token"
         try {
             // Check token
             const res = await fetch(url, {

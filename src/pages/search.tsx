@@ -40,7 +40,7 @@ export default Search
 export const getServerSideProps: GetServerSideProps = async (context: any) => {
     // Get search query
     const q = context.query.q
-    const res = await fetch(`https://apifm.joaquinolivero.com/product/search?q=${q}`)
+    const res = await fetch(`http://localhost:4000/product/search?q=${q}`)
     const data: [ApiResponse] = await res.json()
     if (res.status !== 200) { // If product does not exist return a next.js' not found (404 page)
         return {
