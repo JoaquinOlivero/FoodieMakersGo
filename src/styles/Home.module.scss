@@ -6,8 +6,17 @@
     margin-left: auto;
     margin-right: auto;
     width: 88vw;
+
+    .Home_content_image {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      display: flex;
+      justify-content: center;
+    }
+
     .Home_content_category {
-      margin: 80px;
+      margin: 40px;
       .Home_category_title {
         text-align: center;
         margin: 10px;

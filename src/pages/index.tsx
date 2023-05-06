@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar/Navbar'
 import styles from '../styles/Home.module.scss'
 import ProductCard from '../components/Utils/ProductCard'
+import Image from 'next/image'
 
 type Product = {
   Category: string,
@@ -18,6 +19,10 @@ type Category = {
 }
 
 const topProducts: [Category] | any[] = []
+
+const bannerLoader = () => {
+  return "https://apifm.joaquinolivero.com/images/banner.png";
+}
 
 const Home = () => {
   const [loading, setLoading] = useState(true)
@@ -63,6 +68,9 @@ const Home = () => {
       <Navbar />
       {!loading && topProducts &&
         <div className={styles.Home_content}>
+          <div className={styles.Home_content_image}>
+            <Image loader={bannerLoader} src={"https://apifm.joaquinolivero.com/images/banner.png"} layout='fill' objectFit='contain' />
+          </div>
           {
             topProducts.map((category: Category) => {
               return <div key={category.Name} className={styles.Home_content_category}>
