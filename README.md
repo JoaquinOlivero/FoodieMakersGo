@@ -11,7 +11,7 @@ FoodieMakers is a "marketplace" for food manufacturers where they can publish th
 
 ## Tech used:
 ### Go
-- The Fiber framework is used for the REST api and the websocket server.
+- The Fiber framework was used for the REST api and the websocket server.
 - JWT encrypted authentication.
 
 ### PostgreSQL
